@@ -93,9 +93,10 @@ function AuthedLayout() {
                   <p className="text-xs leading-none text-muted-foreground">
                     {user?.email}
                   </p>
-                  {user?.role === "admin" && (
+                  {(user?.role === "global_admin" ||
+                    user?.role === "admin") && (
                     <span className="text-xs text-primary font-medium">
-                      Admin
+                      {user?.role === "global_admin" ? "Global Admin" : "Admin"}
                     </span>
                   )}
                 </div>

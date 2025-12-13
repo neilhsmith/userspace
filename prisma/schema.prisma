@@ -17,7 +17,7 @@ model User {
   name          String?
   emailVerified Boolean   @default(false)
   image         String?
-  role          String    @default("user") // "user" | "admin"
+  role          String    @default("user") // "user" | "admin" | "global_admin"
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

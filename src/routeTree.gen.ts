@@ -13,11 +13,11 @@ import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedPostsIndexRouteImport } from './routes/_authed/posts/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthedPostsNewRouteImport } from './routes/_authed/posts/new'
-import { Route as AuthedPostsPostIdRouteImport } from './routes/_authed/posts/$postId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -36,6 +36,11 @@ const AuthedRoute = AuthedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostsPostIdRoute = PostsPostIdRouteImport.update({
+  id: '/posts/$postId',
+  path: '/posts/$postId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
@@ -58,18 +63,13 @@ const AuthedPostsNewRoute = AuthedPostsNewRouteImport.update({
   path: '/posts/new',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedPostsPostIdRoute = AuthedPostsPostIdRouteImport.update({
-  id: '/posts/$postId',
-  path: '/posts/$postId',
-  getParentRoute: () => AuthedRoute,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthedDashboardRoute
-  '/posts/$postId': typeof AuthedPostsPostIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/posts': typeof AuthedPostsIndexRoute
@@ -79,7 +79,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthedDashboardRoute
-  '/posts/$postId': typeof AuthedPostsPostIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/posts': typeof AuthedPostsIndexRoute
@@ -91,7 +91,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_authed/dashboard': typeof AuthedDashboardRoute
-  '/_authed/posts/$postId': typeof AuthedPostsPostIdRoute
+  '/posts/$postId': typeof PostsPostIdRoute
   '/_authed/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_authed/posts/': typeof AuthedPostsIndexRoute
@@ -124,7 +124,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_authed/dashboard'
-    | '/_authed/posts/$postId'
+    | '/posts/$postId'
     | '/_authed/posts/new'
     | '/api/auth/$'
     | '/_authed/posts/'
@@ -135,6 +135,7 @@ export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  PostsPostIdRoute: typeof PostsPostIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
@@ -168,6 +169,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/posts/$postId': {
+      id: '/posts/$postId'
+      path: '/posts/$postId'
+      fullPath: '/posts/$postId'
+      preLoaderRoute: typeof PostsPostIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed/dashboard': {
       id: '/_authed/dashboard'
       path: '/dashboard'
@@ -196,26 +204,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedPostsNewRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/posts/$postId': {
-      id: '/_authed/posts/$postId'
-      path: '/posts/$postId'
-      fullPath: '/posts/$postId'
-      preLoaderRoute: typeof AuthedPostsPostIdRouteImport
-      parentRoute: typeof AuthedRoute
-    }
   }
 }
 
 interface AuthedRouteChildren {
   AuthedDashboardRoute: typeof AuthedDashboardRoute
-  AuthedPostsPostIdRoute: typeof AuthedPostsPostIdRoute
   AuthedPostsNewRoute: typeof AuthedPostsNewRoute
   AuthedPostsIndexRoute: typeof AuthedPostsIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedDashboardRoute: AuthedDashboardRoute,
-  AuthedPostsPostIdRoute: AuthedPostsPostIdRoute,
   AuthedPostsNewRoute: AuthedPostsNewRoute,
   AuthedPostsIndexRoute: AuthedPostsIndexRoute,
 }
@@ -228,6 +227,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  PostsPostIdRoute: PostsPostIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { useQuery } from "@tanstack/react-query"
-import { getPosts } from "@/server/posts"
-import { useSession } from "@/lib/auth-client"
-import { canEditPost, canDeletePost } from "@/lib/rbac"
-import { Button } from "@/components/ui/button"
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { getPosts } from "@/server/posts";
+import { useSession } from "@/lib/auth-client";
+import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,29 +11,33 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { formatDistanceToNow } from "date-fns"
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/_authed/posts/")({
   component: PostsPage,
-})
+});
 
 function PostsPage() {
-  const { data: session } = useSession()
-  const user = session?.user
+  const { data: session } = useSession();
+  const user = session?.user;
 
-  const { data: posts, isLoading, error } = useQuery({
+  const {
+    data: posts,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["posts"],
     queryFn: () => getPosts(),
-  })
+  });
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <p className="text-muted-foreground">Loading posts...</p>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -41,7 +45,7 @@ function PostsPage() {
       <div className="flex items-center justify-center py-12">
         <p className="text-destructive">Failed to load posts</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -49,9 +53,7 @@ function PostsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Posts</h1>
-          <p className="text-muted-foreground">
-            Browse and manage posts
-          </p>
+          <p className="text-muted-foreground">Browse and manage posts</p>
         </div>
         <Button asChild>
           <Link to="/posts/new">New Post</Link>
@@ -74,12 +76,8 @@ function PostsPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle>
-                      <Link
-                        to="/posts/$postId"
-                        params={{ postId: post.id }}
-                        className="hover:underline"
-                      >
+                    <CardTitle className="hover:underline">
+                      <Link to="/posts/$postId" params={{ postId: post.id }}>
                         {post.title}
                       </Link>
                     </CardTitle>
@@ -87,23 +85,27 @@ function PostsPage() {
                       <Avatar className="h-5 w-5">
                         <AvatarImage src={post.author.image || undefined} />
                         <AvatarFallback className="text-xs">
-                          {post.author.name?.charAt(0) || post.author.email?.charAt(0)}
+                          {post.author.name?.charAt(0) ||
+                            post.author.email?.charAt(0)}
                         </AvatarFallback>
                       </Avatar>
                       <span>{post.author.name || post.author.email}</span>
                       <span>·</span>
                       <span>
-                        {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(post.createdAt), {
+                          addSuffix: true,
+                        })}
                       </span>
                     </CardDescription>
                   </div>
-                  {user && (canEditPost(user, post) || canDeletePost(user, post)) && (
-                    <Button asChild variant="outline" size="sm">
-                      <Link to="/posts/$postId" params={{ postId: post.id }}>
-                        Edit
-                      </Link>
-                    </Button>
-                  )}
+                  {user &&
+                    (canEditPost(user, post) || canDeletePost(user, post)) && (
+                      <Button asChild variant="outline" size="sm">
+                        <Link to="/posts/$postId" params={{ postId: post.id }}>
+                          Edit
+                        </Link>
+                      </Button>
+                    )}
                 </div>
               </CardHeader>
               <CardContent>
@@ -123,6 +125,5 @@ function PostsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }
-

@@ -21,7 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
-export const Route = createFileRoute("/_authed/posts/$postId")({
+export const Route = createFileRoute("/posts/$postId")({
   component: PostDetailPage,
 });
 
@@ -63,7 +63,7 @@ function PostDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       toast.success("Post deleted successfully!");
-      navigate({ to: "/posts" });
+      navigate({ to: "/" });
     },
     onError: (error) => {
       toast.error(error.message || "Failed to delete post");
@@ -104,7 +104,7 @@ function PostDetailPage() {
       <div className="flex flex-col items-center justify-center py-12 gap-4">
         <p className="text-destructive">Post not found</p>
         <Button asChild>
-          <Link to="/posts">Back to Posts</Link>
+          <Link to="/">Back to Posts</Link>
         </Button>
       </div>
     );
@@ -115,7 +115,7 @@ function PostDetailPage() {
 
   if (isEditing) {
     return (
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-4 py-12">
         <Card>
           <CardHeader>
             <CardTitle>Edit Post</CardTitle>
@@ -165,7 +165,7 @@ function PostDetailPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto px-4 py-12">
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between">
@@ -196,7 +196,7 @@ function PostDetailPage() {
         <Separator />
         <CardFooter className="flex justify-between pt-4">
           <Button asChild variant="ghost">
-            <Link to="/posts">← Back to Posts</Link>
+            <Link to="/">← Back to Posts</Link>
           </Button>
           {(canEdit || canDelete) && (
             <div className="flex gap-2">

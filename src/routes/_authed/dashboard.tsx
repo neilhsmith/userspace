@@ -1,21 +1,21 @@
-import { createFileRoute, Link } from "@tanstack/react-router"
-import { useSession } from "@/lib/auth-client"
-import { Button } from "@/components/ui/button"
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSession } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authed/dashboard")({
   component: DashboardPage,
-})
+});
 
 function DashboardPage() {
-  const { data: session } = useSession()
-  const user = session?.user
+  const { data: session } = useSession();
+  const user = session?.user;
 
   return (
     <div className="space-y-6">
@@ -35,7 +35,8 @@ function DashboardPage() {
           <CardContent>
             <div className="space-y-2">
               <p className="text-sm">
-                <span className="font-medium">Name:</span> {user?.name || "Not set"}
+                <span className="font-medium">Name:</span>{" "}
+                {user?.name || "Not set"}
               </p>
               <p className="text-sm">
                 <span className="font-medium">Email:</span> {user?.email}
@@ -68,7 +69,7 @@ function DashboardPage() {
           </CardContent>
         </Card>
 
-        {user?.role === "admin" && (
+        {(user?.role === "global_admin" || user?.role === "admin") && (
           <Card>
             <CardHeader>
               <CardTitle>Admin Panel</CardTitle>
@@ -76,13 +77,14 @@ function DashboardPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                As an admin, you can edit and delete any post in the system.
+                {user?.role === "global_admin"
+                  ? "As a global admin, you have full access to all system features."
+                  : "As an admin, you can edit and delete any post in the system."}
               </p>
             </CardContent>
           </Card>
         )}
       </div>
     </div>
-  )
+  );
 }
-
