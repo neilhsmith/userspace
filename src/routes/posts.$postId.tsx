@@ -115,7 +115,7 @@ function PostDetailPage() {
 
   if (isEditing) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="max-w-2xl mx-auto">
         <Card>
           <CardHeader>
             <CardTitle>Edit Post</CardTitle>
@@ -165,7 +165,7 @@ function PostDetailPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-12">
+    <div className="max-w-2xl mx-auto">
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between">

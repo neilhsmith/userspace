@@ -1,37 +1,166 @@
-import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
-import { Toaster } from '@/components/ui/sonner'
+import {
+  HeadContent,
+  Outlet,
+  Scripts,
+  createRootRoute,
+  Link,
+  useNavigate,
+} from "@tanstack/react-router";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools";
+import { Toaster } from "@/components/ui/sonner";
+import { signOut, useSession } from "@/lib/auth-client";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
 
-import appCss from '../styles.css?url'
+import appCss from "../styles.css?url";
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
-        charSet: 'utf-8',
+        charSet: "utf-8",
       },
       {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
       },
       {
-        title: 'Userspace',
+        title: "Userspace",
       },
     ],
     links: [
       {
-        rel: 'stylesheet',
+        rel: "stylesheet",
         href: appCss,
       },
     ],
   }),
   component: RootComponent,
   shellComponent: RootDocument,
-})
+});
+
+function Header() {
+  const navigate = useNavigate();
+  const { data: session, isPending } = useSession();
+  const user = session?.user;
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Signed out successfully");
+      navigate({ to: "/" });
+    } catch {
+      toast.error("Failed to sign out");
+    }
+  };
+
+  return (
+    <header className="border-b">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <nav className="flex items-center gap-6">
+          <Link to="/" className="text-xl font-bold">
+            Userspace
+          </Link>
+          {user && (
+            <>
+              <Link
+                to="/dashboard"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                activeProps={{ className: "text-foreground font-medium" }}
+              >
+                Dashboard
+              </Link>
+              <Link
+                to="/posts"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                activeProps={{ className: "text-foreground font-medium" }}
+              >
+                Posts
+              </Link>
+            </>
+          )}
+        </nav>
+
+        {isPending ? (
+          <div className="h-8 w-8" />
+        ) : user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={user?.image || undefined}
+                    alt={user?.name || ""}
+                  />
+                  <AvatarFallback>
+                    {user?.name?.charAt(0).toUpperCase() ||
+                      user?.email?.charAt(0).toUpperCase() ||
+                      "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">
+                    {user?.name}
+                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    {user?.email}
+                  </p>
+                  {(user?.role === "global_admin" ||
+                    user?.role === "admin") && (
+                    <span className="text-xs text-primary font-medium">
+                      {user?.role === "global_admin" ? "Global Admin" : "Admin"}
+                    </span>
+                  )}
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to="/posts/new">New Post</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut}>
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/login">Sign in</Link>
+            </Button>
+            <Button asChild size="sm">
+              <Link to="/signup">Sign up</Link>
+            </Button>
+          </div>
+        )}
+      </div>
+    </header>
+  );
+}
 
 function RootComponent() {
-  return <Outlet />
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <Outlet />
+      </main>
+    </div>
+  );
 }
 
 function RootDocument({ children }: { children: React.ReactNode }) {
@@ -45,11 +174,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Toaster position="top-right" />
         <TanStackDevtools
           config={{
-            position: 'bottom-right',
+            position: "bottom-right",
           }}
           plugins={[
             {
-              name: 'Tanstack Router',
+              name: "Tanstack Router",
               render: <TanStackRouterDevtoolsPanel />,
             },
           ]}
@@ -57,5 +186,5 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <Scripts />
       </body>
     </html>
-  )
+  );
 }
