@@ -26,7 +26,7 @@ export const postSelect = {
   },
 } satisfies Prisma.PostSelect;
 
-type PostDb = Prisma.PostGetPayload<{
+type PostSelect = Prisma.PostGetPayload<{
   select: typeof postSelect;
 }>;
 
@@ -36,12 +36,12 @@ type PostDb = Prisma.PostGetPayload<{
  * Notes:
  * - Prisma returns `Date` for DateTime fields; serverFns should serialize to ISO strings.
  */
-export type Post = Omit<PostDb, "createdAt" | "updatedAt"> & {
+export type Post = Omit<PostSelect, "createdAt" | "updatedAt"> & {
   createdAt: string;
   updatedAt: string;
 };
 
-export function serializePost(post: PostDb): Post {
+export function serializePost(post: PostSelect): Post {
   return {
     ...post,
     createdAt: post.createdAt.toISOString(),
@@ -49,6 +49,6 @@ export function serializePost(post: PostDb): Post {
   };
 }
 
-export function serializePosts(posts: readonly PostDb[]): Post[] {
+export function serializePosts(posts: readonly PostSelect[]): Post[] {
   return posts.map(serializePost);
 }
