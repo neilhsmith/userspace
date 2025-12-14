@@ -4,17 +4,17 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { useRequest } from "nitro/context";
 import {
-  normalizeCommunityName,
+  normalizePlaceName,
   generateSlug,
-  validateCommunityName,
-} from "@/lib/community";
+  validatePlaceName,
+} from "@/lib/place";
 
 // Zod schemas
-const getCommunitySchema = z.object({
+const getPlaceSchema = z.object({
   slug: z.string(),
 });
 
-const createCommunitySchema = z.object({
+const createPlaceSchema = z.object({
   name: z.string().min(1, "Name is required"),
 });
 
@@ -26,12 +26,12 @@ async function getSession() {
   });
 }
 
-// Get top communities (random sample for now)
-export const getTopCommunities = createServerFn({ method: "GET" }).handler(
+// Get top places (random sample for now)
+export const getTopPlaces = createServerFn({ method: "GET" }).handler(
   async () => {
     // SQLite doesn't have RANDOM() in ORDER BY with limit in Prisma,
-    // so we fetch all and shuffle in JS (fine for small community counts)
-    const allCommunities = await prisma.community.findMany({
+    // so we fetch all and shuffle in JS (fine for small place counts)
+    const allPlaces = await prisma.place.findMany({
       select: {
         id: true,
         name: true,
@@ -40,15 +40,15 @@ export const getTopCommunities = createServerFn({ method: "GET" }).handler(
     });
 
     // Shuffle and take up to 20
-    const shuffled = allCommunities.sort(() => Math.random() - 0.5);
+    const shuffled = allPlaces.sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 20);
   }
 );
 
-// Get all communities (for dropdowns, etc.)
-export const getAllCommunities = createServerFn({ method: "GET" }).handler(
+// Get all places (for dropdowns, etc.)
+export const getAllPlaces = createServerFn({ method: "GET" }).handler(
   async () => {
-    const communities = await prisma.community.findMany({
+    const places = await prisma.place.findMany({
       select: {
         id: true,
         name: true,
@@ -58,16 +58,16 @@ export const getAllCommunities = createServerFn({ method: "GET" }).handler(
         name: "asc",
       },
     });
-    return communities;
+    return places;
   }
 );
 
-// Get a single community by slug
-export const getCommunityBySlug = createServerFn({ method: "GET" }).handler(
+// Get a single place by slug
+export const getPlaceBySlug = createServerFn({ method: "GET" }).handler(
   async (ctx: { data: unknown }) => {
-    const { slug } = getCommunitySchema.parse(ctx.data);
+    const { slug } = getPlaceSchema.parse(ctx.data);
 
-    const community = await prisma.community.findUnique({
+    const place = await prisma.place.findUnique({
       where: { slug },
       include: {
         moderator: {
@@ -86,18 +86,18 @@ export const getCommunityBySlug = createServerFn({ method: "GET" }).handler(
       },
     });
 
-    return community;
+    return place;
   }
 );
 
-// Get posts for a community
-export const getCommunityPosts = createServerFn({ method: "GET" }).handler(
+// Get posts for a place
+export const getPlacePosts = createServerFn({ method: "GET" }).handler(
   async (ctx: { data: unknown }) => {
-    const { slug } = getCommunitySchema.parse(ctx.data);
+    const { slug } = getPlaceSchema.parse(ctx.data);
 
     const posts = await prisma.post.findMany({
       where: {
-        community: {
+        place: {
           slug,
         },
       },
@@ -110,7 +110,7 @@ export const getCommunityPosts = createServerFn({ method: "GET" }).handler(
             image: true,
           },
         },
-        community: {
+        place: {
           select: {
             id: true,
             name: true,
@@ -127,42 +127,42 @@ export const getCommunityPosts = createServerFn({ method: "GET" }).handler(
   }
 );
 
-// Create a new community
-export const createCommunity = createServerFn({ method: "POST" }).handler(
+// Create a new place
+export const createPlace = createServerFn({ method: "POST" }).handler(
   async (ctx: { data: unknown }) => {
-    const { name } = createCommunitySchema.parse(ctx.data);
+    const { name } = createPlaceSchema.parse(ctx.data);
     const session = await getSession();
 
     if (!session) {
       throw new Error("Unauthorized");
     }
 
-    const normalizedName = normalizeCommunityName(name);
+    const normalizedName = normalizePlaceName(name);
     const slug = generateSlug(name);
-    const validationError = validateCommunityName(name);
+    const validationError = validatePlaceName(name);
 
     if (validationError) {
       throw new Error(validationError);
     }
 
-    // Check if community with same name or slug already exists
-    const existingByName = await prisma.community.findUnique({
+    // Check if place with same name or slug already exists
+    const existingByName = await prisma.place.findUnique({
       where: { name: normalizedName },
     });
 
     if (existingByName) {
-      throw new Error("A community with this name already exists");
+      throw new Error("A place with this name already exists");
     }
 
-    const existingBySlug = await prisma.community.findUnique({
+    const existingBySlug = await prisma.place.findUnique({
       where: { slug },
     });
 
     if (existingBySlug) {
-      throw new Error("A community with this slug already exists");
+      throw new Error("A place with this slug already exists");
     }
 
-    const community = await prisma.community.create({
+    const place = await prisma.place.create({
       data: {
         name: normalizedName,
         slug,
@@ -180,6 +180,6 @@ export const createCommunity = createServerFn({ method: "POST" }).handler(
       },
     });
 
-    return community;
+    return place;
   }
 );

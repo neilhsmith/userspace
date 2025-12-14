@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createPost } from "@/server/posts";
-import { getAllCommunities } from "@/server/communities";
+import { getAllPlaces } from "@/server/places";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,7 +20,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 const searchSchema = z.object({
-  community: z.string().optional(),
+  place: z.string().optional(),
 });
 
 export const Route = createFileRoute("/_authed/posts/new")({
@@ -31,32 +31,32 @@ export const Route = createFileRoute("/_authed/posts/new")({
 function NewPostPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { community: preselectedCommunity } = Route.useSearch();
+  const { place: preselectedPlace } = Route.useSearch();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [communityId, setCommunityId] = useState("");
+  const [placeId, setPlaceId] = useState("");
 
-  const { data: communities, isLoading: communitiesLoading } = useQuery({
-    queryKey: ["allCommunities"],
-    queryFn: () => getAllCommunities(),
+  const { data: places, isLoading: placesLoading } = useQuery({
+    queryKey: ["allPlaces"],
+    queryFn: () => getAllPlaces(),
   });
 
-  // Pre-select community if provided in URL (by slug)
+  // Pre-select place if provided in URL (by slug)
   useEffect(() => {
-    if (preselectedCommunity && communities) {
-      const found = communities.find((c) => c.slug === preselectedCommunity);
+    if (preselectedPlace && places) {
+      const found = places.find((p) => p.slug === preselectedPlace);
       if (found) {
-        setCommunityId(found.id);
+        setPlaceId(found.id);
       }
     }
-  }, [preselectedCommunity, communities]);
+  }, [preselectedPlace, places]);
 
   const mutation = useMutation({
     mutationFn: createPost,
     onSuccess: (post) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
-      queryClient.invalidateQueries({ queryKey: ["communityPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["placePosts"] });
       toast.success("Post created successfully!");
       navigate({ to: "/posts/$postId", params: { postId: post.id } });
     },
@@ -67,15 +67,15 @@ function NewPostPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!communityId) {
-      toast.error("Please select a community");
+    if (!placeId) {
+      toast.error("Please select a place");
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mutation.mutate as any)({ data: { title, content, communityId } });
+    (mutation.mutate as any)({ data: { title, content, placeId } });
   };
 
-  const selectedCommunity = communities?.find((c) => c.id === communityId);
+  const selectedPlace = places?.find((p) => p.id === placeId);
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -83,23 +83,23 @@ function NewPostPage() {
         <CardHeader>
           <CardTitle>Create New Post</CardTitle>
           <CardDescription>
-            Share your thoughts with the community
+            Share your thoughts with the place
           </CardDescription>
         </CardHeader>
         <CardForm onSubmit={handleSubmit}>
           <CardContent>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="community">Community</FieldLabel>
-                {communitiesLoading ? (
+                <FieldLabel htmlFor="place">Place</FieldLabel>
+                {placesLoading ? (
                   <p className="text-sm text-muted-foreground">
-                    Loading communities...
+                    Loading places...
                   </p>
-                ) : communities?.length === 0 ? (
+                ) : places?.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
-                    No communities yet.{" "}
+                    No places yet.{" "}
                     <a
-                      href="/communities/new"
+                      href="/places/new"
                       className="text-primary hover:underline"
                     >
                       Create one
@@ -107,25 +107,25 @@ function NewPostPage() {
                   </p>
                 ) : (
                   <select
-                    id="community"
-                    value={communityId}
-                    onChange={(e) => setCommunityId(e.target.value)}
+                    id="place"
+                    value={placeId}
+                    onChange={(e) => setPlaceId(e.target.value)}
                     required
                     disabled={mutation.isPending}
                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    <option value="">Select a community...</option>
-                    {communities?.map((community) => (
-                      <option key={community.id} value={community.id}>
-                        {community.name}
+                    <option value="">Select a place...</option>
+                    {places?.map((place) => (
+                      <option key={place.id} value={place.id}>
+                        {place.name}
                       </option>
                     ))}
                   </select>
                 )}
-                {selectedCommunity && (
+                {selectedPlace && (
                   <p className="text-sm text-muted-foreground mt-1">
-                    Posting to {selectedCommunity.name} (c/
-                    {selectedCommunity.slug})
+                    Posting to {selectedPlace.name} (p/
+                    {selectedPlace.slug})
                   </p>
                 )}
               </Field>
@@ -158,7 +158,7 @@ function NewPostPage() {
             <Button
               type="submit"
               disabled={
-                mutation.isPending || !communityId || communitiesLoading
+                mutation.isPending || !placeId || placesLoading
               }
             >
               {mutation.isPending ? "Creating..." : "Create Post"}

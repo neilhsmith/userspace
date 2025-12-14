@@ -34,7 +34,7 @@ function HomePage() {
         <div>
           <h1 className="text-3xl font-bold">Recent Posts</h1>
           <p className="text-muted-foreground">
-            Browse the latest posts from the community
+            Browse the latest posts from the places
           </p>
         </div>
         {session && (
@@ -68,11 +68,11 @@ function HomePage() {
                     </CardTitle>
                     <CardDescription className="flex items-center gap-2 flex-wrap">
                       <Link
-                        to="/c/$slug"
-                        params={{ slug: post.community.slug }}
+                        to="/p/$slug"
+                        params={{ slug: post.place.slug }}
                         className="text-xs px-1.5 py-0.5 rounded bg-muted hover:bg-muted/80 transition-colors"
                       >
-                        {post.community.name}
+                        {post.place.name}
                       </Link>
                       <span>·</span>
                       <Avatar className="h-5 w-5">

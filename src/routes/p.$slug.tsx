@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getCommunityBySlug, getCommunityPosts } from "@/server/communities";
+import { getPlaceBySlug, getPlacePosts } from "@/server/places";
 import { useSession } from "@/lib/auth-client";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
@@ -15,40 +15,40 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 
-export const Route = createFileRoute("/c/$slug")({
-  component: CommunityPage,
+export const Route = createFileRoute("/p/$slug")({
+  component: PlacePage,
 });
 
-function CommunityPage() {
+function PlacePage() {
   const { slug } = Route.useParams();
   const { data: session } = useSession();
   const user = session?.user;
 
-  const { data: community, isLoading: communityLoading } = useQuery({
-    queryKey: ["community", slug],
+  const { data: place, isLoading: placeLoading } = useQuery({
+    queryKey: ["place", slug],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queryFn: () => (getCommunityBySlug as any)({ data: { slug } }),
+    queryFn: () => (getPlaceBySlug as any)({ data: { slug } }),
   });
 
   const { data: posts, isLoading: postsLoading } = useQuery({
-    queryKey: ["communityPosts", slug],
+    queryKey: ["placePosts", slug],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queryFn: () => (getCommunityPosts as any)({ data: { slug } }),
-    enabled: !!community,
+    queryFn: () => (getPlacePosts as any)({ data: { slug } }),
+    enabled: !!place,
   });
 
-  if (communityLoading) {
+  if (placeLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Loading community...</p>
+        <p className="text-muted-foreground">Loading place...</p>
       </div>
     );
   }
 
-  if (!community) {
+  if (!place) {
     return (
       <div className="flex flex-col items-center justify-center py-12 gap-4">
-        <p className="text-destructive">Community not found</p>
+        <p className="text-destructive">Place not found</p>
         <Button asChild>
           <Link to="/">Back to Home</Link>
         </Button>
@@ -58,33 +58,33 @@ function CommunityPage() {
 
   return (
     <div className="space-y-6">
-      {/* Community Header */}
+      {/* Place Header */}
       <div className="border-b pb-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold">{community.name}</h1>
-            <p className="text-sm text-muted-foreground">c/{community.slug}</p>
+            <h1 className="text-3xl font-bold">{place.name}</h1>
+            <p className="text-sm text-muted-foreground">p/{place.slug}</p>
             <div className="flex items-center gap-2 mt-2 text-muted-foreground">
               <span>Moderated by</span>
               <Avatar className="h-5 w-5">
-                <AvatarImage src={community.moderator.image || undefined} />
+                <AvatarImage src={place.moderator.image || undefined} />
                 <AvatarFallback className="text-xs">
-                  {community.moderator.name?.charAt(0) ||
-                    community.moderator.email?.charAt(0)}
+                  {place.moderator.name?.charAt(0) ||
+                    place.moderator.email?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <span>
-                {community.moderator.name || community.moderator.email}
+                {place.moderator.name || place.moderator.email}
               </span>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {community._count.posts}{" "}
-              {community._count.posts === 1 ? "post" : "posts"}
+              {place._count.posts}{" "}
+              {place._count.posts === 1 ? "post" : "posts"}
             </p>
           </div>
           {user && (
             <Button asChild>
-              <Link to="/posts/new" search={{ community: community.slug }}>
+              <Link to="/posts/new" search={{ place: place.slug }}>
                 New Post
               </Link>
             </Button>
@@ -101,11 +101,11 @@ function CommunityPage() {
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">
-              No posts in this community yet
+              No posts in this place yet
             </p>
             {user && (
               <Button asChild className="mt-4">
-                <Link to="/posts/new" search={{ community: community.slug }}>
+                <Link to="/posts/new" search={{ place: place.slug }}>
                   Create the first post
                 </Link>
               </Button>

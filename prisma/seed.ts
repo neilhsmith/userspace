@@ -32,13 +32,13 @@ const seedUsers: SeedUser[] = [
   { email: "user3@example.com", name: "User Three", role: "user" },
 ];
 
-interface SeedCommunity {
+interface SeedPlace {
   name: string; // Display name
   slug: string; // URL-friendly slug
   moderatorEmail: string;
 }
 
-const seedCommunities: SeedCommunity[] = [
+const seedPlaces: SeedPlace[] = [
   {
     name: "Programming",
     slug: "programming",
@@ -88,7 +88,7 @@ const seedCommunities: SeedCommunity[] = [
 interface SeedPost {
   title: string;
   content: string;
-  communitySlug: string;
+  placeSlug: string;
   authorEmail: string;
 }
 
@@ -98,14 +98,14 @@ const seedPosts: SeedPost[] = [
     title: "What's your favorite programming language and why?",
     content:
       "I've been coding for about 5 years now and I keep coming back to Python for its simplicity and readability. What about you all? What's your go-to language and why do you love it?",
-    communitySlug: "programming",
+    placeSlug: "programming",
     authorEmail: "user1@example.com",
   },
   {
     title: "Tips for learning data structures and algorithms",
     content:
       "Just started preparing for technical interviews. Any recommendations for resources to learn DSA effectively? I've been using LeetCode but feeling a bit overwhelmed.",
-    communitySlug: "programming",
+    placeSlug: "programming",
     authorEmail: "user2@example.com",
   },
   // WebDev
@@ -113,14 +113,14 @@ const seedPosts: SeedPost[] = [
     title: "React vs Vue vs Svelte in 2024",
     content:
       "Starting a new project and trying to decide which frontend framework to use. I've used React before but heard great things about Svelte's performance. What are your experiences?",
-    communitySlug: "webdev",
+    placeSlug: "webdev",
     authorEmail: "user1@example.com",
   },
   {
     title: "How do you handle state management in large apps?",
     content:
       "Our codebase is getting complex and useState/useContext aren't cutting it anymore. Should we go with Redux, Zustand, or something else? Looking for real-world experiences.",
-    communitySlug: "webdev",
+    placeSlug: "webdev",
     authorEmail: "admin1@example.com",
   },
   // JavaScript
@@ -128,7 +128,7 @@ const seedPosts: SeedPost[] = [
     title: "Understanding async/await under the hood",
     content:
       "I use async/await all the time but never really understood how it works internally. Just learned about the event loop and promises. It's fascinating how JavaScript handles concurrency!",
-    communitySlug: "javascript",
+    placeSlug: "javascript",
     authorEmail: "user3@example.com",
   },
   // TypeScript
@@ -136,14 +136,14 @@ const seedPosts: SeedPost[] = [
     title: "TypeScript 5.4 features I'm excited about",
     content:
       "The new NoInfer utility type is a game changer for library authors. Also loving the improvements to type narrowing. What features are you most excited about?",
-    communitySlug: "typescript",
+    placeSlug: "typescript",
     authorEmail: "admin2@example.com",
   },
   {
     title: "Migrating a large codebase from JavaScript to TypeScript",
     content:
       "Just finished migrating our 100k LOC project to TypeScript. It took 3 months but the improved DX and caught bugs made it worth it. Happy to answer questions!",
-    communitySlug: "typescript",
+    placeSlug: "typescript",
     authorEmail: "user1@example.com",
   },
   // React
@@ -151,7 +151,7 @@ const seedPosts: SeedPost[] = [
     title: "React Server Components are amazing",
     content:
       "Finally got around to trying RSC with Next.js 14 and wow. The performance improvements are real. Data fetching feels so much cleaner now.",
-    communitySlug: "react",
+    placeSlug: "react",
     authorEmail: "user2@example.com",
   },
   // Node.js
@@ -159,7 +159,7 @@ const seedPosts: SeedPost[] = [
     title: "Bun vs Deno vs Node.js - which one are you using?",
     content:
       "With all these JavaScript runtimes available now, which one is your primary choice for backend development? I'm still on Node but curious about Bun's performance claims.",
-    communitySlug: "nodejs",
+    placeSlug: "nodejs",
     authorEmail: "admin1@example.com",
   },
   // Rust
@@ -167,7 +167,7 @@ const seedPosts: SeedPost[] = [
     title: "My journey learning Rust as a JavaScript developer",
     content:
       "Coming from JS, the borrow checker was tough at first. But after 2 months, I'm starting to appreciate how it prevents entire classes of bugs. The compiler errors are actually helpful!",
-    communitySlug: "rust",
+    placeSlug: "rust",
     authorEmail: "user3@example.com",
   },
   // Golang
@@ -175,7 +175,7 @@ const seedPosts: SeedPost[] = [
     title: "Go's simplicity is underrated",
     content:
       "After years of using complex frameworks, Go's standard library and straightforward approach is refreshing. Built a production API with just net/http. Love the fast compile times too!",
-    communitySlug: "golang",
+    placeSlug: "golang",
     authorEmail: "admin2@example.com",
   },
   // Python
@@ -183,7 +183,7 @@ const seedPosts: SeedPost[] = [
     title: "FastAPI has changed how I build APIs",
     content:
       "Switched from Flask to FastAPI and the automatic OpenAPI docs, type hints, and async support are amazing. Highly recommend for anyone building Python APIs.",
-    communitySlug: "python",
+    placeSlug: "python",
     authorEmail: "user1@example.com",
   },
   // DevOps
@@ -191,7 +191,7 @@ const seedPosts: SeedPost[] = [
     title: "Docker Compose vs Kubernetes for small teams",
     content:
       "We're a team of 5 and wondering if we really need Kubernetes. Docker Compose has been working fine but feeling pressure to migrate. What's your experience?",
-    communitySlug: "devops",
+    placeSlug: "devops",
     authorEmail: "admin1@example.com",
   },
   // Linux
@@ -199,7 +199,7 @@ const seedPosts: SeedPost[] = [
     title: "Best distro for development in 2024?",
     content:
       "Setting up a new dev machine. Been using Ubuntu but considering Fedora or Arch. What distro do you use for development and why?",
-    communitySlug: "linux",
+    placeSlug: "linux",
     authorEmail: "user2@example.com",
   },
   // Gaming
@@ -207,7 +207,7 @@ const seedPosts: SeedPost[] = [
     title: "What games are you playing this weekend?",
     content:
       "Looking for recommendations! Just finished Baldur's Gate 3 and need something new. Into RPGs and strategy games mostly.",
-    communitySlug: "gaming",
+    placeSlug: "gaming",
     authorEmail: "user3@example.com",
   },
   // Science
@@ -215,7 +215,7 @@ const seedPosts: SeedPost[] = [
     title: "James Webb Telescope latest discoveries",
     content:
       "The images and data coming from JWST continue to amaze me. The detail on distant galaxies is incredible. Science is awesome!",
-    communitySlug: "science",
+    placeSlug: "science",
     authorEmail: "globaladmin@example.com",
   },
   // Technology
@@ -223,7 +223,7 @@ const seedPosts: SeedPost[] = [
     title: "AI developments are moving incredibly fast",
     content:
       "Every week there seems to be a new breakthrough in AI. From GPT-4 to open source models like Llama, it's hard to keep up. What developments are you most excited about?",
-    communitySlug: "technology",
+    placeSlug: "technology",
     authorEmail: "admin1@example.com",
   },
   // AskReddit style
@@ -231,15 +231,15 @@ const seedPosts: SeedPost[] = [
     title: "What's a skill you learned that unexpectedly changed your life?",
     content:
       "For me, it was learning to touch type. Seemed small at the time but it's made such a difference in my productivity and comfort while working.",
-    communitySlug: "askreddit",
+    placeSlug: "askreddit",
     authorEmail: "user1@example.com",
   },
   // Funny
   {
     title: "My rubber duck just solved a bug I spent 3 hours on",
     content:
-      "Explained the problem to my rubber duck and immediately realized I had a typo in my variable name. The duck remains undefeated. 🦆",
-    communitySlug: "funny",
+      "Explained the problem to my rubber duck and immediately realized I had a typo in my variable name. The duck remains undefeated.",
+    placeSlug: "funny",
     authorEmail: "user2@example.com",
   },
 ];
@@ -287,42 +287,42 @@ async function main() {
     console.log(`  ✅ Created ${seedUser.role}: ${seedUser.email}`);
   }
 
-  // Create communities
-  console.log("\n📦 Creating communities...");
-  const communityIdMap = new Map<string, string>();
+  // Create places
+  console.log("\n📦 Creating places...");
+  const placeIdMap = new Map<string, string>();
 
-  for (const seedCommunity of seedCommunities) {
-    const existingCommunity = await prisma.community.findUnique({
-      where: { slug: seedCommunity.slug },
+  for (const seedPlace of seedPlaces) {
+    const existingPlace = await prisma.place.findUnique({
+      where: { slug: seedPlace.slug },
     });
 
-    if (existingCommunity) {
+    if (existingPlace) {
       console.log(
-        `  ⏭️  Community ${seedCommunity.name} (c/${seedCommunity.slug}) already exists, skipping...`
+        `  ⏭️  Place ${seedPlace.name} (p/${seedPlace.slug}) already exists, skipping...`
       );
-      communityIdMap.set(seedCommunity.slug, existingCommunity.id);
+      placeIdMap.set(seedPlace.slug, existingPlace.id);
       continue;
     }
 
-    const moderatorId = userIdMap.get(seedCommunity.moderatorEmail);
+    const moderatorId = userIdMap.get(seedPlace.moderatorEmail);
     if (!moderatorId) {
       console.log(
-        `  ❌ Failed to create community ${seedCommunity.name}: moderator not found`
+        `  ❌ Failed to create place ${seedPlace.name}: moderator not found`
       );
       continue;
     }
 
-    const community = await prisma.community.create({
+    const place = await prisma.place.create({
       data: {
-        name: seedCommunity.name,
-        slug: seedCommunity.slug,
+        name: seedPlace.name,
+        slug: seedPlace.slug,
         moderatorId,
       },
     });
 
-    communityIdMap.set(seedCommunity.slug, community.id);
+    placeIdMap.set(seedPlace.slug, place.id);
     console.log(
-      `  ✅ Created community: ${seedCommunity.name} (c/${seedCommunity.slug})`
+      `  ✅ Created place: ${seedPlace.name} (p/${seedPlace.slug})`
     );
   }
 
@@ -330,21 +330,21 @@ async function main() {
   console.log("\n📝 Creating posts...");
 
   for (const seedPost of seedPosts) {
-    const communityId = communityIdMap.get(seedPost.communitySlug);
+    const placeId = placeIdMap.get(seedPost.placeSlug);
     const authorId = userIdMap.get(seedPost.authorEmail);
 
-    if (!communityId || !authorId) {
+    if (!placeId || !authorId) {
       console.log(
-        `  ❌ Failed to create post "${seedPost.title}": community or author not found`
+        `  ❌ Failed to create post "${seedPost.title}": place or author not found`
       );
       continue;
     }
 
-    // Check if post already exists (by title in community)
+    // Check if post already exists (by title in place)
     const existingPost = await prisma.post.findFirst({
       where: {
         title: seedPost.title,
-        communityId,
+        placeId,
       },
     });
 
@@ -357,13 +357,13 @@ async function main() {
       data: {
         title: seedPost.title,
         content: seedPost.content,
-        communityId,
+        placeId,
         authorId,
       },
     });
 
     console.log(
-      `  ✅ Created post: "${seedPost.title}" in c/${seedPost.communitySlug}`
+      `  ✅ Created post: "${seedPost.title}" in p/${seedPost.placeSlug}`
     );
   }
 
