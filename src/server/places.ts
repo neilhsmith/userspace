@@ -101,7 +101,16 @@ export const getPlacePosts = createServerFn({ method: "GET" }).handler(
           slug,
         },
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        domain: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,

@@ -28,13 +28,17 @@ export const Route = createFileRoute("/_authed/posts/new")({
   validateSearch: searchSchema,
 });
 
+type PostType = "text" | "link";
+
 function NewPostPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { place: preselectedPlace } = Route.useSearch();
 
+  const [postType, setPostType] = useState<PostType>("text");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [url, setUrl] = useState("");
   const [placeId, setPlaceId] = useState("");
 
   const { data: places, isLoading: placesLoading } = useQuery({
@@ -57,6 +61,7 @@ function NewPostPage() {
     onSuccess: (post) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["placePosts"] });
+      queryClient.invalidateQueries({ queryKey: ["domainPosts", post.domain] });
       toast.success("Post created successfully!");
       navigate({ to: "/posts/$postId", params: { postId: post.id } });
     },
@@ -71,8 +76,12 @@ function NewPostPage() {
       toast.error("Please select a place");
       return;
     }
+    const data =
+      postType === "text"
+        ? { title, content, placeId }
+        : { title, url, placeId };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mutation.mutate as any)({ data: { title, content, placeId } });
+    (mutation.mutate as any)({ data });
   };
 
   const selectedPlace = places?.find((p) => p.id === placeId);
@@ -82,9 +91,7 @@ function NewPostPage() {
       <Card>
         <CardHeader>
           <CardTitle>Create New Post</CardTitle>
-          <CardDescription>
-            Share your thoughts with the place
-          </CardDescription>
+          <CardDescription>Share your thoughts with the place</CardDescription>
         </CardHeader>
         <CardForm onSubmit={handleSubmit}>
           <CardContent>
@@ -130,6 +137,29 @@ function NewPostPage() {
                 )}
               </Field>
               <Field>
+                <FieldLabel>Post Type</FieldLabel>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant={postType === "text" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setPostType("text")}
+                    disabled={mutation.isPending}
+                  >
+                    Text
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={postType === "link" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setPostType("link")}
+                    disabled={mutation.isPending}
+                  >
+                    Link
+                  </Button>
+                </div>
+              </Field>
+              <Field>
                 <FieldLabel htmlFor="title">Title</FieldLabel>
                 <Input
                   id="title"
@@ -140,26 +170,39 @@ function NewPostPage() {
                   disabled={mutation.isPending}
                 />
               </Field>
-              <Field>
-                <FieldLabel htmlFor="content">Content</FieldLabel>
-                <Textarea
-                  id="content"
-                  placeholder="Write your post content..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                  disabled={mutation.isPending}
-                  rows={10}
-                />
-              </Field>
+              {postType === "text" ? (
+                <Field>
+                  <FieldLabel htmlFor="content">Content</FieldLabel>
+                  <Textarea
+                    id="content"
+                    placeholder="Write your post content..."
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    required
+                    disabled={mutation.isPending}
+                    rows={10}
+                  />
+                </Field>
+              ) : (
+                <Field>
+                  <FieldLabel htmlFor="url">URL</FieldLabel>
+                  <Input
+                    id="url"
+                    type="url"
+                    placeholder="https://example.com/article"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    required
+                    disabled={mutation.isPending}
+                  />
+                </Field>
+              )}
             </FieldGroup>
           </CardContent>
           <CardFooter className="flex gap-2">
             <Button
               type="submit"
-              disabled={
-                mutation.isPending || !placeId || placesLoading
-              }
+              disabled={mutation.isPending || !placeId || placesLoading}
             >
               {mutation.isPending ? "Creating..." : "Create Post"}
             </Button>

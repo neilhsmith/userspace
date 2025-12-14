@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { safeHref } from "@/lib/utils";
 
 export const Route = createFileRoute("/posts/$postId")({
   component: PostDetailPage,
@@ -34,6 +35,7 @@ function PostDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [url, setUrl] = useState("");
 
   const {
     data: post,
@@ -73,15 +75,21 @@ function PostDetailPage() {
   const handleEdit = () => {
     if (post) {
       setTitle(post.title);
-      setContent(post.content);
+      setContent(post.content || "");
+      setUrl(post.url || "");
       setIsEditing(true);
     }
   };
 
+  const isLinkPost = post?.url && !post?.content;
+
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
+    const data = isLinkPost
+      ? { id: postId, title, url }
+      : { id: postId, title, content };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (updateMutation.mutate as any)({ data: { id: postId, title, content } });
+    (updateMutation.mutate as any)({ data });
   };
 
   const handleDelete = () => {
@@ -133,17 +141,31 @@ function PostDetailPage() {
                   disabled={updateMutation.isPending}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="content">Content</Label>
-                <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                  disabled={updateMutation.isPending}
-                  rows={10}
-                />
-              </div>
+              {isLinkPost ? (
+                <div className="space-y-2">
+                  <Label htmlFor="url">URL</Label>
+                  <Input
+                    id="url"
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    required
+                    disabled={updateMutation.isPending}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="content">Content</Label>
+                  <Textarea
+                    id="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    required
+                    disabled={updateMutation.isPending}
+                    rows={10}
+                  />
+                </div>
+              )}
             </CardContent>
             <CardFooter className="flex gap-2">
               <Button type="submit" disabled={updateMutation.isPending}>
@@ -170,7 +192,38 @@ function PostDetailPage() {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-2xl">{post.title}</CardTitle>
+              <CardTitle className="text-2xl">
+                {post.url ? (
+                  <>
+                    <a
+                      href={safeHref(post.url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
+                      {post.title}
+                    </a>
+                    <Link
+                      to="/domain/$domain"
+                      params={{ domain: post.domain }}
+                      className="text-base font-normal text-muted-foreground ml-2 hover:underline"
+                    >
+                      ({post.domain})
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    {post.title}
+                    <Link
+                      to="/p/$slug"
+                      params={{ slug: post.place.slug }}
+                      className="text-base font-normal text-muted-foreground ml-2 hover:underline"
+                    >
+                      ({post.domain})
+                    </Link>
+                  </>
+                )}
+              </CardTitle>
               <CardDescription className="flex items-center gap-2 flex-wrap">
                 <Link
                   to="/p/$slug"
@@ -198,9 +251,11 @@ function PostDetailPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <p className="whitespace-pre-wrap">{post.content}</p>
-        </CardContent>
+        {post.content && (
+          <CardContent>
+            <p className="whitespace-pre-wrap">{post.content}</p>
+          </CardContent>
+        )}
         <Separator />
         <CardFooter className="flex justify-between pt-4">
           <Button asChild variant="ghost">

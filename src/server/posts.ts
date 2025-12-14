@@ -3,26 +3,44 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { getDomain, isSafeHttpUrl } from "@/lib/utils";
 import { useRequest } from "nitro/context";
 
 // Zod schemas
-const createPostSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
-  content: z
-    .string()
-    .min(1, "Content is required")
-    .max(10000, "Content too long"),
-  placeId: z.string().min(1, "Place is required"),
-});
+const httpUrlSchema = z
+  .string()
+  .url("Invalid URL")
+  .refine((value) => isSafeHttpUrl(value), {
+    message: "URL must start with http:// or https://",
+  });
 
-const updatePostSchema = z.object({
-  id: z.string(),
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
-  content: z
-    .string()
-    .min(1, "Content is required")
-    .max(10000, "Content too long"),
-});
+const createPostSchema = z
+  .object({
+    title: z.string().min(1, "Title is required").max(200, "Title too long"),
+    content: z.string().max(10000, "Content too long").optional(),
+    url: httpUrlSchema.optional(),
+    placeId: z.string().min(1, "Place is required"),
+  })
+  .refine((data) => data.content || data.url, {
+    message: "Either content or URL is required",
+  })
+  .refine((data) => !(data.content && data.url), {
+    message: "Cannot have both content and URL",
+  });
+
+const updatePostSchema = z
+  .object({
+    id: z.string(),
+    title: z.string().min(1, "Title is required").max(200, "Title too long"),
+    content: z.string().max(10000, "Content too long").optional(),
+    url: httpUrlSchema.optional(),
+  })
+  .refine((data) => data.content || data.url, {
+    message: "Either content or URL is required",
+  })
+  .refine((data) => !(data.content && data.url), {
+    message: "Cannot have both content and URL",
+  });
 
 const deletePostSchema = z.object({
   id: z.string(),
@@ -43,7 +61,16 @@ async function getSession() {
 // Get all posts
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
   const posts = await prisma.post.findMany({
-    include: {
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      url: true,
+      domain: true,
+      authorId: true,
+      placeId: true,
+      createdAt: true,
+      updatedAt: true,
       author: {
         select: {
           id: true,
@@ -73,7 +100,16 @@ export const getPost = createServerFn({ method: "GET" }).handler(
     const { id } = getPostSchema.parse(ctx.data);
     const post = await prisma.post.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        domain: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -98,16 +134,17 @@ export const getPost = createServerFn({ method: "GET" }).handler(
 // Create a post
 export const createPost = createServerFn({ method: "POST" }).handler(
   async (ctx: { data: unknown }) => {
-    const { title, content, placeId } = createPostSchema.parse(ctx.data);
+    const { title, content, url, placeId } = createPostSchema.parse(ctx.data);
     const session = await getSession();
 
     if (!session) {
       throw new Error("Unauthorized");
     }
 
-    // Verify place exists
+    // Verify place exists and get slug for domain
     const place = await prisma.place.findUnique({
       where: { id: placeId },
+      select: { slug: true },
     });
 
     if (!place) {
@@ -117,11 +154,22 @@ export const createPost = createServerFn({ method: "POST" }).handler(
     const post = await prisma.post.create({
       data: {
         title,
-        content,
+        content: content || null,
+        url: url || null,
+        domain: url ? getDomain(url) : `self.${place.slug}`,
         authorId: session.user.id,
         placeId,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        domain: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -147,7 +195,7 @@ export const createPost = createServerFn({ method: "POST" }).handler(
 // Update a post
 export const updatePost = createServerFn({ method: "POST" }).handler(
   async (ctx: { data: unknown }) => {
-    const { id, title, content } = updatePostSchema.parse(ctx.data);
+    const { id, title, content, url } = updatePostSchema.parse(ctx.data);
     const session = await getSession();
 
     if (!session) {
@@ -156,6 +204,7 @@ export const updatePost = createServerFn({ method: "POST" }).handler(
 
     const existingPost = await prisma.post.findUnique({
       where: { id },
+      include: { place: { select: { slug: true } } },
     });
 
     if (!existingPost) {
@@ -170,9 +219,20 @@ export const updatePost = createServerFn({ method: "POST" }).handler(
       where: { id },
       data: {
         title,
-        content,
+        content: content || null,
+        url: url || null,
+        domain: url ? getDomain(url) : `self.${existingPost.place.slug}`,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        domain: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -240,7 +300,16 @@ export const getMyPosts = createServerFn({ method: "GET" }).handler(
       where: {
         authorId: session.user.id,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        domain: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -262,6 +331,52 @@ export const getMyPosts = createServerFn({ method: "GET" }).handler(
       },
     });
 
+    return posts;
+  }
+);
+
+const getPostsByDomainSchema = z.object({
+  domain: z.string(),
+});
+
+// Get posts by domain
+export const getPostsByDomain = createServerFn({ method: "GET" }).handler(
+  async (ctx: { data: unknown }) => {
+    const { domain } = getPostsByDomainSchema.parse(ctx.data);
+    const posts = await prisma.post.findMany({
+      where: {
+        domain,
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        domain: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        place: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
     return posts;
   }
 );

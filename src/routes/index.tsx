@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "@/lib/auth-client";
 import { getPosts } from "@/server/posts";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { safeHref } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/")({
@@ -61,10 +62,41 @@ function HomePage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="hover:underline">
-                      <Link to="/posts/$postId" params={{ postId: post.id }}>
-                        {post.title}
-                      </Link>
+                    <CardTitle>
+                      {post.url ? (
+                        <>
+                          <a
+                            href={safeHref(post.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {post.title}
+                          </a>
+                          <Link
+                            to="/domain/$domain"
+                            params={{ domain: post.domain }}
+                            className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
+                          >
+                            ({post.domain})
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            to="/posts/$postId"
+                            params={{ postId: post.id }}
+                          >
+                            {post.title}
+                          </Link>
+                          <Link
+                            to="/p/$slug"
+                            params={{ slug: post.place.slug }}
+                            className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
+                          >
+                            ({post.domain})
+                          </Link>
+                        </>
+                      )}
                     </CardTitle>
                     <CardDescription className="flex items-center gap-2 flex-wrap">
                       <Link
@@ -101,11 +133,13 @@ function HomePage() {
                     )}
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground line-clamp-3">
-                  {post.content}
-                </p>
-              </CardContent>
+              {post.content && (
+                <CardContent>
+                  <p className="text-muted-foreground line-clamp-3">
+                    {post.content}
+                  </p>
+                </CardContent>
+              )}
               <CardFooter>
                 <Button asChild variant="ghost" size="sm">
                   <Link to="/posts/$postId" params={{ postId: post.id }}>
