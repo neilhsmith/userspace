@@ -1,24 +1,28 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
+  CardForm,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
 
+const loginSearchSchema = z.object({
+  redirect: z.string().optional().catch(undefined),
+});
+
 export const Route = createFileRoute("/login")({
   component: LoginPage,
-  validateSearch: (search: Record<string, unknown>) => ({
-    redirect: (search.redirect as string) || undefined,
-  }),
+  validateSearch: loginSearchSchema,
 });
 
 function LoginPage() {
@@ -61,37 +65,39 @@ function LoginPage() {
             Enter your email and password to access your account
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="must be at least ??? characters"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={isLoading}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign in"}
-            </Button>
+        <CardForm onSubmit={handleSubmit}>
+          <CardContent>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </Field>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? "Signing in..." : "Sign in"}
+              </Button>
+            </FieldGroup>
           </CardContent>
-          <CardFooter className="py-8">
+          <CardFooter>
             <p className="text-sm text-muted-foreground text-center w-full">
               Don't have an account?{" "}
               <Link to="/signup" className="text-primary hover:underline">
@@ -99,7 +105,7 @@ function LoginPage() {
               </Link>
             </p>
           </CardFooter>
-        </form>
+        </CardForm>
       </Card>
     </div>
   );
