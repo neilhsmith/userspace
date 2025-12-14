@@ -17,7 +17,7 @@ import {
 import { toast } from "sonner";
 
 const loginSearchSchema = z.object({
-  redirect: z.string().optional(),
+  redirect: z.string().optional().catch(undefined),
 });
 
 export const Route = createFileRoute("/login")({
