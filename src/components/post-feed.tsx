@@ -1,8 +1,9 @@
+import { PostPreview } from "@/components/post-preview";
 import type { Session } from "@/lib/auth-client";
-import { PostPreview, type PostPreviewPost } from "@/components/post-preview";
+import type { Post } from "@/lib/post";
 
 type PostFeedProps = {
-  posts: PostPreviewPost[] | undefined;
+  posts: Post[] | undefined;
   currentUser?: Session["user"] | null;
   showPlace?: boolean;
   showDomainLink?: boolean;

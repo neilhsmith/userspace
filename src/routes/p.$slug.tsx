@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PostFeed } from "@/components/post-feed";
-import type { PostPreviewPost } from "@/components/post-preview";
 
 export const Route = createFileRoute("/p/$slug")({
   component: PlacePage,
@@ -99,11 +98,7 @@ function PlacePage() {
           </CardContent>
         </Card>
       ) : (
-        <PostFeed
-          posts={posts as PostPreviewPost[] | undefined}
-          currentUser={user}
-          showPlace={false}
-        />
+        <PostFeed posts={posts} currentUser={user} showPlace={false} />
       )}
     </div>
   );

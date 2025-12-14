@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
 import { getDomain, isSafeHttpUrl } from "@/lib/utils";
+import { postSelect, serializePost, serializePosts } from "@/lib/post";
 import { useRequest } from "nitro/context";
 
 // Zod schemas
@@ -61,37 +62,12 @@ async function getSession() {
 // Get all posts
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
   const posts = await prisma.post.findMany({
-    select: {
-      id: true,
-      title: true,
-      content: true,
-      url: true,
-      domain: true,
-      authorId: true,
-      placeId: true,
-      createdAt: true,
-      updatedAt: true,
-      author: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          image: true,
-        },
-      },
-      place: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
-    },
+    select: postSelect,
     orderBy: {
       createdAt: "desc",
     },
   });
-  return posts;
+  return serializePosts(posts);
 });
 
 // Get a single post
@@ -101,34 +77,9 @@ export const getPost = createServerFn({ method: "GET" })
     const { id } = data;
     const post = await prisma.post.findUnique({
       where: { id },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        url: true,
-        domain: true,
-        authorId: true,
-        placeId: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-        place: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-      },
+      select: postSelect,
     });
-    return post;
+    return post ? serializePost(post) : null;
   });
 
 // Create a post
@@ -161,35 +112,10 @@ export const createPost = createServerFn({ method: "POST" })
         authorId: session.user.id,
         placeId,
       },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        url: true,
-        domain: true,
-        authorId: true,
-        placeId: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-        place: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-      },
+      select: postSelect,
     });
 
-    return post;
+    return serializePost(post);
   });
 
 // Update a post
@@ -224,35 +150,10 @@ export const updatePost = createServerFn({ method: "POST" })
         url: url || null,
         domain: url ? getDomain(url) : `self.${existingPost.place.slug}`,
       },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        url: true,
-        domain: true,
-        authorId: true,
-        placeId: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-        place: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-      },
+      select: postSelect,
     });
 
-    return post;
+    return serializePost(post);
   });
 
 // Delete a post
@@ -300,38 +201,13 @@ export const getMyPosts = createServerFn({ method: "GET" }).handler(
       where: {
         authorId: session.user.id,
       },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        url: true,
-        domain: true,
-        authorId: true,
-        placeId: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-        place: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-      },
+      select: postSelect,
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return posts;
+    return serializePosts(posts);
   }
 );
 
@@ -348,35 +224,10 @@ export const getPostsByDomain = createServerFn({ method: "GET" })
       where: {
         domain,
       },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        url: true,
-        domain: true,
-        authorId: true,
-        placeId: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-        place: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-      },
+      select: postSelect,
       orderBy: {
         createdAt: "desc",
       },
     });
-    return posts;
+    return serializePosts(posts);
   });

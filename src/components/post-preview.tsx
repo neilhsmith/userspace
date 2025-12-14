@@ -1,32 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import type { Session } from "@/lib/auth-client";
 import { canDeletePost, canEditPost } from "@/lib/rbac";
+import type { Post } from "@/lib/post";
 import { safeHref } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
-export type PostPreviewPost = {
-  id: string;
-  title: string;
-  content: string | null;
-  url: string | null;
-  domain: string;
-  createdAt: string | Date;
-  authorId: string;
-  author: {
-    id: string;
-    name: string | null;
-    email: string;
-    image: string | null;
-  };
-  place: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-};
-
 type PostPreviewProps = {
-  post: PostPreviewPost;
+  post: Post;
   index?: number;
   currentUser?: Session["user"] | null;
   showPlace?: boolean;
