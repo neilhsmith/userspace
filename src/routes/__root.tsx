@@ -68,27 +68,29 @@ function CommunityBar() {
   return (
     <div className="bg-muted/50 border-b">
       <div className="container mx-auto px-4">
-        <div className="flex items-center gap-1 h-8 overflow-x-auto scrollbar-hide">
-          <span className="text-xs text-muted-foreground shrink-0 mr-1">
-            communities:
-          </span>
-          {communities?.map((community) => (
-            <Link
-              key={community.id}
-              to="/c/$slug"
-              params={{ slug: community.slug }}
-              className="text-xs px-2 py-0.5 rounded hover:bg-muted transition-colors shrink-0"
-              activeProps={{ className: "bg-muted font-medium" }}
-            >
-              {community.name}
-            </Link>
-          ))}
+        <div className="flex items-center h-8 gap-2">
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
+            <span className="text-xs text-muted-foreground shrink-0 mr-1">
+              communities:
+            </span>
+            {communities?.map((community) => (
+              <Link
+                key={community.id}
+                to="/c/$slug"
+                params={{ slug: community.slug }}
+                className="text-xs px-2 py-0.5 rounded hover:bg-muted transition-colors shrink-0"
+                activeProps={{ className: "bg-muted font-medium" }}
+              >
+                {community.name}
+              </Link>
+            ))}
+          </div>
           {user && (
             <Link
               to="/communities/new"
-              className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0 ml-auto"
+              className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0"
             >
-              + Create
+              + Create community
             </Link>
           )}
         </div>
@@ -192,6 +194,9 @@ function Header() {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/posts/new">New Post</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/communities/new">New Community</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
