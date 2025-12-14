@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { getDomain } from "@/lib/utils";
 import { useRequest } from "nitro/context";
 
 // Zod schemas
@@ -58,6 +59,7 @@ export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
       title: true,
       content: true,
       url: true,
+      domain: true,
       authorId: true,
       placeId: true,
       createdAt: true,
@@ -96,6 +98,7 @@ export const getPost = createServerFn({ method: "GET" }).handler(
         title: true,
         content: true,
         url: true,
+        domain: true,
         authorId: true,
         placeId: true,
         createdAt: true,
@@ -145,6 +148,7 @@ export const createPost = createServerFn({ method: "POST" }).handler(
         title,
         content: content || null,
         url: url || null,
+        domain: url ? getDomain(url) : null,
         authorId: session.user.id,
         placeId,
       },
@@ -153,6 +157,7 @@ export const createPost = createServerFn({ method: "POST" }).handler(
         title: true,
         content: true,
         url: true,
+        domain: true,
         authorId: true,
         placeId: true,
         createdAt: true,
@@ -207,12 +212,14 @@ export const updatePost = createServerFn({ method: "POST" }).handler(
         title,
         content: content || null,
         url: url || null,
+        domain: url ? getDomain(url) : null,
       },
       select: {
         id: true,
         title: true,
         content: true,
         url: true,
+        domain: true,
         authorId: true,
         placeId: true,
         createdAt: true,
@@ -289,6 +296,7 @@ export const getMyPosts = createServerFn({ method: "GET" }).handler(
         title: true,
         content: true,
         url: true,
+        domain: true,
         authorId: true,
         placeId: true,
         createdAt: true,
@@ -314,6 +322,52 @@ export const getMyPosts = createServerFn({ method: "GET" }).handler(
       },
     });
 
+    return posts;
+  }
+);
+
+const getPostsByDomainSchema = z.object({
+  domain: z.string(),
+});
+
+// Get posts by domain
+export const getPostsByDomain = createServerFn({ method: "GET" }).handler(
+  async (ctx: { data: unknown }) => {
+    const { domain } = getPostsByDomainSchema.parse(ctx.data);
+    const posts = await prisma.post.findMany({
+      where: {
+        domain,
+      },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        domain: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+        place: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
     return posts;
   }
 );

@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPost, updatePost, deletePost } from "@/server/posts";
 import { useSession } from "@/lib/auth-client";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
-import { getDomain } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -198,9 +197,15 @@ function PostDetailPage() {
                     <a href={post.url} className="hover:underline">
                       {post.title}
                     </a>
-                    <span className="text-base font-normal text-muted-foreground ml-2">
-                      ({getDomain(post.url)})
-                    </span>
+                    {post.domain && (
+                      <Link
+                        to="/domain/$domain"
+                        params={{ domain: post.domain }}
+                        className="text-base font-normal text-muted-foreground ml-2 hover:underline"
+                      >
+                        ({post.domain})
+                      </Link>
+                    )}
                   </>
                 ) : (
                   post.title

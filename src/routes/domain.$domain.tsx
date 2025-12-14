@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { getPlaceBySlug, getPlacePosts } from "@/server/places";
+import { getPostsByDomain } from "@/server/posts";
 import { useSession } from "@/lib/auth-client";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
 import { Button } from "@/components/ui/button";
@@ -15,101 +15,49 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 
-export const Route = createFileRoute("/p/$slug")({
-  component: PlacePage,
+export const Route = createFileRoute("/domain/$domain")({
+  component: DomainPage,
 });
 
-function PlacePage() {
-  const { slug } = Route.useParams();
+function DomainPage() {
+  const { domain } = Route.useParams();
   const { data: session } = useSession();
   const user = session?.user;
 
-  const { data: place, isLoading: placeLoading } = useQuery({
-    queryKey: ["place", slug],
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ["domainPosts", domain],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queryFn: () => (getPlaceBySlug as any)({ data: { slug } }),
+    queryFn: () => (getPostsByDomain as any)({ data: { domain } }),
   });
 
-  const { data: posts, isLoading: postsLoading } = useQuery({
-    queryKey: ["placePosts", slug],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queryFn: () => (getPlacePosts as any)({ data: { slug } }),
-    enabled: !!place,
-  });
-
-  if (placeLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-muted-foreground">Loading place...</p>
-      </div>
-    );
-  }
-
-  if (!place) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 gap-4">
-        <p className="text-destructive">Place not found</p>
-        <Button asChild>
-          <Link to="/">Back to Home</Link>
-        </Button>
+        <p className="text-muted-foreground">Loading posts...</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Place Header */}
       <div className="border-b pb-6">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold">{place.name}</h1>
-            <p className="text-sm text-muted-foreground">p/{place.slug}</p>
-            <div className="flex items-center gap-2 mt-2 text-muted-foreground">
-              <span>Moderated by</span>
-              <Avatar className="h-5 w-5">
-                <AvatarImage src={place.moderator.image || undefined} />
-                <AvatarFallback className="text-xs">
-                  {place.moderator.name?.charAt(0) ||
-                    place.moderator.email?.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <span>
-                {place.moderator.name || place.moderator.email}
-              </span>
-            </div>
+            <h1 className="text-3xl font-bold">{domain}</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {place._count.posts}{" "}
-              {place._count.posts === 1 ? "post" : "posts"}
+              {posts?.length || 0} {posts?.length === 1 ? "post" : "posts"} from
+              this domain
             </p>
           </div>
-          {user && (
-            <Button asChild>
-              <Link to="/posts/new" search={{ place: place.slug }}>
-                New Post
-              </Link>
-            </Button>
-          )}
         </div>
       </div>
 
-      {/* Posts */}
-      {postsLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Loading posts...</p>
-        </div>
-      ) : posts?.length === 0 ? (
+      {posts?.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <p className="text-muted-foreground">
-              No posts in this place yet
+              No posts from this domain yet
             </p>
-            {user && (
-              <Button asChild className="mt-4">
-                <Link to="/posts/new" search={{ place: place.slug }}>
-                  Create the first post
-                </Link>
-              </Button>
-            )}
           </CardContent>
         </Card>
       ) : (
@@ -128,6 +76,11 @@ function PlacePage() {
                 email: string;
                 image: string | null;
               };
+              place: {
+                id: string;
+                name: string;
+                slug: string;
+              };
               authorId: string;
             }) => (
               <Card key={post.id}>
@@ -136,27 +89,32 @@ function PlacePage() {
                     <div className="space-y-1">
                       <CardTitle className="hover:underline">
                         {post.url ? (
-                          <>
-                            <a href={post.url}>
-                              {post.title}
-                            </a>
+                          <a
+                            href={post.url}
+                            className="inline-flex items-center gap-2"
+                          >
+                            {post.title}
                             {post.domain && (
-                              <Link
-                                to="/domain/$domain"
-                                params={{ domain: post.domain }}
-                                className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
-                              >
+                              <span className="text-sm font-normal text-muted-foreground">
                                 ({post.domain})
-                              </Link>
+                              </span>
                             )}
-                          </>
+                          </a>
                         ) : (
                           <Link to="/posts/$postId" params={{ postId: post.id }}>
                             {post.title}
                           </Link>
                         )}
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-2">
+                      <CardDescription className="flex items-center gap-2 flex-wrap">
+                        <Link
+                          to="/p/$slug"
+                          params={{ slug: post.place.slug }}
+                          className="text-xs px-1.5 py-0.5 rounded bg-muted hover:bg-muted/80 transition-colors"
+                        >
+                          {post.place.name}
+                        </Link>
+                        <span>·</span>
                         <Avatar className="h-5 w-5">
                           <AvatarImage src={post.author.image || undefined} />
                           <AvatarFallback className="text-xs">

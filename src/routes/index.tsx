@@ -13,7 +13,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "@/lib/auth-client";
 import { getPosts } from "@/server/posts";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
-import { getDomain } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/")({
@@ -62,15 +61,19 @@ function HomePage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="hover:underline">
+                    <CardTitle>
                       {post.url ? (
                         <>
-                          <a href={post.url}>
-                            {post.title}
-                          </a>
-                          <span className="text-sm font-normal text-muted-foreground ml-2">
-                            ({getDomain(post.url)})
-                          </span>
+                          <a href={post.url}>{post.title}</a>
+                          {post.domain && (
+                            <Link
+                              to="/domain/$domain"
+                              params={{ domain: post.domain }}
+                              className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
+                            >
+                              ({post.domain})
+                            </Link>
+                          )}
                         </>
                       ) : (
                         <Link to="/posts/$postId" params={{ postId: post.id }}>

@@ -106,6 +106,7 @@ export const getPlacePosts = createServerFn({ method: "GET" }).handler(
         title: true,
         content: true,
         url: true,
+        domain: true,
         authorId: true,
         placeId: true,
         createdAt: true,

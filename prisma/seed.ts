@@ -1,6 +1,7 @@
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaLibSql } from "@prisma/adapter-libsql";
 import { auth } from "../src/lib/auth";
+import { getDomain } from "../src/lib/utils";
 
 const adapter = new PrismaLibSql({
   url: `file:${process.cwd()}/prisma/dev.db`,
@@ -353,9 +354,7 @@ async function main() {
     });
 
     placeIdMap.set(seedPlace.slug, place.id);
-    console.log(
-      `  ✅ Created place: ${seedPlace.name} (p/${seedPlace.slug})`
-    );
+    console.log(`  ✅ Created place: ${seedPlace.name} (p/${seedPlace.slug})`);
   }
 
   // Create posts
@@ -390,6 +389,7 @@ async function main() {
         title: seedPost.title,
         content: seedPost.content || null,
         url: seedPost.url || null,
+        domain: seedPost.url ? getDomain(seedPost.url) : null,
         placeId,
         authorId,
       },

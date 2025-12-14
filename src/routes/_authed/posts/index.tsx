@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { getPosts } from "@/server/posts";
 import { useSession } from "@/lib/auth-client";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
-import { getDomain } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -79,12 +78,20 @@ function PostsPage() {
                   <div className="space-y-1">
                     <CardTitle className="hover:underline">
                       {post.url ? (
-                        <a href={post.url} className="inline-flex items-center gap-2">
-                          {post.title}
-                          <span className="text-sm font-normal text-muted-foreground">
-                            ({getDomain(post.url)})
-                          </span>
-                        </a>
+                        <>
+                          <a href={post.url}>
+                            {post.title}
+                          </a>
+                          {post.domain && (
+                            <Link
+                              to="/domain/$domain"
+                              params={{ domain: post.domain }}
+                              className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
+                            >
+                              ({post.domain})
+                            </Link>
+                          )}
+                        </>
                       ) : (
                         <Link to="/posts/$postId" params={{ postId: post.id }}>
                           {post.title}
