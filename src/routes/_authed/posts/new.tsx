@@ -61,6 +61,7 @@ function NewPostPage() {
     onSuccess: (post) => {
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       queryClient.invalidateQueries({ queryKey: ["placePosts"] });
+      queryClient.invalidateQueries({ queryKey: ["domainPosts", post.domain] });
       toast.success("Post created successfully!");
       navigate({ to: "/posts/$postId", params: { postId: post.id } });
     },
@@ -90,9 +91,7 @@ function NewPostPage() {
       <Card>
         <CardHeader>
           <CardTitle>Create New Post</CardTitle>
-          <CardDescription>
-            Share your thoughts with the place
-          </CardDescription>
+          <CardDescription>Share your thoughts with the place</CardDescription>
         </CardHeader>
         <CardForm onSubmit={handleSubmit}>
           <CardContent>
@@ -203,9 +202,7 @@ function NewPostPage() {
           <CardFooter className="flex gap-2">
             <Button
               type="submit"
-              disabled={
-                mutation.isPending || !placeId || placesLoading
-              }
+              disabled={mutation.isPending || !placeId || placesLoading}
             >
               {mutation.isPending ? "Creating..." : "Create Post"}
             </Button>
