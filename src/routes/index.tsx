@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, MatchRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -101,7 +101,17 @@ function HomePage() {
               <CardFooter>
                 <Button asChild variant="ghost" size="sm">
                   <Link to="/posts/$postId" params={{ postId: post.id }}>
-                    Read more →
+                    <MatchRoute
+                      to="/posts/$postId"
+                      params={{ postId: post.id }}
+                      pending
+                    >
+                      {(match) => (
+                        <span className={match ? "animate-pulse" : ""}>
+                          Read more →
+                        </span>
+                      )}
+                    </MatchRoute>
                   </Link>
                 </Button>
               </CardFooter>
