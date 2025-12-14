@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createCommunity } from "@/server/communities";
-import { generateSlug, normalizeCommunityName } from "@/lib/community";
+import { createPlace } from "@/server/places";
+import { generateSlug } from "@/lib/place";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -17,28 +17,27 @@ import {
 } from "@/components/ui/card";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authed/communities/new")({
-  component: NewCommunityPage,
+export const Route = createFileRoute("/_authed/places/new")({
+  component: NewPlacePage,
 });
 
-function NewCommunityPage() {
+function NewPlacePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [name, setName] = useState("");
 
-  const normalizedName = normalizeCommunityName(name);
   const slug = generateSlug(name);
 
   const mutation = useMutation({
-    mutationFn: createCommunity,
-    onSuccess: (community) => {
-      queryClient.invalidateQueries({ queryKey: ["topCommunities"] });
-      queryClient.invalidateQueries({ queryKey: ["allCommunities"] });
-      toast.success("Community created successfully!");
-      navigate({ to: "/c/$slug", params: { slug: community.slug } });
+    mutationFn: createPlace,
+    onSuccess: (place) => {
+      queryClient.invalidateQueries({ queryKey: ["topPlaces"] });
+      queryClient.invalidateQueries({ queryKey: ["allPlaces"] });
+      toast.success("Place created successfully!");
+      navigate({ to: "/p/$slug", params: { slug: place.slug } });
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to create community");
+      toast.error(error.message || "Failed to create place");
     },
   });
 
@@ -52,19 +51,19 @@ function NewCommunityPage() {
     <div className="max-w-2xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Community</CardTitle>
+          <CardTitle>Create New Place</CardTitle>
           <CardDescription>
-            Start a new community and become its moderator
+            Start a new place and become its moderator
           </CardDescription>
         </CardHeader>
         <CardForm onSubmit={handleSubmit}>
           <CardContent>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="name">Community Name</FieldLabel>
+                <FieldLabel htmlFor="name">Place Name</FieldLabel>
                 <Input
                   id="name"
-                  placeholder="My Awesome Community"
+                  placeholder="My Awesome Place"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -72,11 +71,11 @@ function NewCommunityPage() {
                 />
                 {name && slug && (
                   <p className="text-sm text-muted-foreground mt-2">
-                    URL: <span className="font-mono">c/{slug}</span>
+                    URL: <span className="font-mono">p/{slug}</span>
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground mt-2">
-                  Choose a name for your community. It will be displayed as-is,
+                  Choose a name for your place. It will be displayed as-is,
                   and a URL-friendly slug will be generated automatically.
                 </p>
               </Field>
@@ -84,7 +83,7 @@ function NewCommunityPage() {
           </CardContent>
           <CardFooter className="flex gap-2">
             <Button type="submit" disabled={mutation.isPending || !slug}>
-              {mutation.isPending ? "Creating..." : "Create Community"}
+              {mutation.isPending ? "Creating..." : "Create Place"}
             </Button>
             <Button
               type="button"

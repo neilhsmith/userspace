@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { getTopCommunities } from "@/server/communities";
+import { getTopPlaces } from "@/server/places";
 
 import appCss from "../styles.css?url";
 
@@ -54,13 +54,13 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 });
 
-function CommunityBar() {
+function PlaceBar() {
   const { data: session } = useSession();
   const user = session?.user;
 
-  const { data: communities } = useQuery({
-    queryKey: ["topCommunities"],
-    queryFn: () => getTopCommunities(),
+  const { data: places } = useQuery({
+    queryKey: ["topPlaces"],
+    queryFn: () => getTopPlaces(),
     staleTime: 0,
     refetchOnMount: "always",
   });
@@ -71,26 +71,26 @@ function CommunityBar() {
         <div className="flex items-center h-8 gap-2">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
             <span className="text-xs text-muted-foreground shrink-0 mr-1">
-              communities:
+              places:
             </span>
-            {communities?.map((community) => (
+            {places?.map((place) => (
               <Link
-                key={community.id}
-                to="/c/$slug"
-                params={{ slug: community.slug }}
+                key={place.id}
+                to="/p/$slug"
+                params={{ slug: place.slug }}
                 className="text-xs px-2 py-0.5 rounded hover:bg-muted transition-colors shrink-0"
                 activeProps={{ className: "bg-muted font-medium" }}
               >
-                {community.name}
+                {place.name}
               </Link>
             ))}
           </div>
           {user && (
             <Link
-              to="/communities/new"
+              to="/places/new"
               className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0"
             >
-              + Create community
+              + Create place
             </Link>
           )}
         </div>
@@ -196,7 +196,7 @@ function Header() {
                 <Link to="/posts/new">New Post</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/communities/new">New Community</Link>
+                <Link to="/places/new">New Place</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
@@ -224,7 +224,7 @@ function Header() {
 function RootComponent() {
   return (
     <div className="min-h-screen bg-background">
-      <CommunityBar />
+      <PlaceBar />
       <Header />
       <NavigationProgress />
       <main className="container mx-auto px-4 py-8">

@@ -14,12 +14,12 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
-import { Route as CSlugRouteImport } from './routes/c.$slug'
+import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedPostsIndexRouteImport } from './routes/_authed/posts/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthedPostsNewRouteImport } from './routes/_authed/posts/new'
-import { Route as AuthedCommunitiesNewRouteImport } from './routes/_authed/communities/new'
+import { Route as AuthedPlacesNewRouteImport } from './routes/_authed/places/new'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -45,9 +45,9 @@ const PostsPostIdRoute = PostsPostIdRouteImport.update({
   path: '/posts/$postId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CSlugRoute = CSlugRouteImport.update({
-  id: '/c/$slug',
-  path: '/c/$slug',
+const PSlugRoute = PSlugRouteImport.update({
+  id: '/p/$slug',
+  path: '/p/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
@@ -70,9 +70,9 @@ const AuthedPostsNewRoute = AuthedPostsNewRouteImport.update({
   path: '/posts/new',
   getParentRoute: () => AuthedRoute,
 } as any)
-const AuthedCommunitiesNewRoute = AuthedCommunitiesNewRouteImport.update({
-  id: '/communities/new',
-  path: '/communities/new',
+const AuthedPlacesNewRoute = AuthedPlacesNewRouteImport.update({
+  id: '/places/new',
+  path: '/places/new',
   getParentRoute: () => AuthedRoute,
 } as any)
 
@@ -81,9 +81,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthedDashboardRoute
-  '/c/$slug': typeof CSlugRoute
+  '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
-  '/communities/new': typeof AuthedCommunitiesNewRoute
+  '/places/new': typeof AuthedPlacesNewRoute
   '/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/posts': typeof AuthedPostsIndexRoute
@@ -93,9 +93,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthedDashboardRoute
-  '/c/$slug': typeof CSlugRoute
+  '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
-  '/communities/new': typeof AuthedCommunitiesNewRoute
+  '/places/new': typeof AuthedPlacesNewRoute
   '/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/posts': typeof AuthedPostsIndexRoute
@@ -107,9 +107,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_authed/dashboard': typeof AuthedDashboardRoute
-  '/c/$slug': typeof CSlugRoute
+  '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
-  '/_authed/communities/new': typeof AuthedCommunitiesNewRoute
+  '/_authed/places/new': typeof AuthedPlacesNewRoute
   '/_authed/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/_authed/posts/': typeof AuthedPostsIndexRoute
@@ -121,9 +121,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/dashboard'
-    | '/c/$slug'
+    | '/p/$slug'
     | '/posts/$postId'
-    | '/communities/new'
+    | '/places/new'
     | '/posts/new'
     | '/api/auth/$'
     | '/posts'
@@ -133,9 +133,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/dashboard'
-    | '/c/$slug'
+    | '/p/$slug'
     | '/posts/$postId'
-    | '/communities/new'
+    | '/places/new'
     | '/posts/new'
     | '/api/auth/$'
     | '/posts'
@@ -146,9 +146,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_authed/dashboard'
-    | '/c/$slug'
+    | '/p/$slug'
     | '/posts/$postId'
-    | '/_authed/communities/new'
+    | '/_authed/places/new'
     | '/_authed/posts/new'
     | '/api/auth/$'
     | '/_authed/posts/'
@@ -159,7 +159,7 @@ export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
-  CSlugRoute: typeof CSlugRoute
+  PSlugRoute: typeof PSlugRoute
   PostsPostIdRoute: typeof PostsPostIdRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -201,11 +201,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PostsPostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/c/$slug': {
-      id: '/c/$slug'
-      path: '/c/$slug'
-      fullPath: '/c/$slug'
-      preLoaderRoute: typeof CSlugRouteImport
+    '/p/$slug': {
+      id: '/p/$slug'
+      path: '/p/$slug'
+      fullPath: '/p/$slug'
+      preLoaderRoute: typeof PSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/dashboard': {
@@ -236,11 +236,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedPostsNewRouteImport
       parentRoute: typeof AuthedRoute
     }
-    '/_authed/communities/new': {
-      id: '/_authed/communities/new'
-      path: '/communities/new'
-      fullPath: '/communities/new'
-      preLoaderRoute: typeof AuthedCommunitiesNewRouteImport
+    '/_authed/places/new': {
+      id: '/_authed/places/new'
+      path: '/places/new'
+      fullPath: '/places/new'
+      preLoaderRoute: typeof AuthedPlacesNewRouteImport
       parentRoute: typeof AuthedRoute
     }
   }
@@ -248,14 +248,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthedRouteChildren {
   AuthedDashboardRoute: typeof AuthedDashboardRoute
-  AuthedCommunitiesNewRoute: typeof AuthedCommunitiesNewRoute
+  AuthedPlacesNewRoute: typeof AuthedPlacesNewRoute
   AuthedPostsNewRoute: typeof AuthedPostsNewRoute
   AuthedPostsIndexRoute: typeof AuthedPostsIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedDashboardRoute: AuthedDashboardRoute,
-  AuthedCommunitiesNewRoute: AuthedCommunitiesNewRoute,
+  AuthedPlacesNewRoute: AuthedPlacesNewRoute,
   AuthedPostsNewRoute: AuthedPostsNewRoute,
   AuthedPostsIndexRoute: AuthedPostsIndexRoute,
 }
@@ -268,7 +268,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
-  CSlugRoute: CSlugRoute,
+  PSlugRoute: PSlugRoute,
   PostsPostIdRoute: PostsPostIdRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
