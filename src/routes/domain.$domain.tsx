@@ -4,7 +4,6 @@ import { getPostsByDomain } from "@/server/posts";
 import { useSession } from "@/lib/auth-client";
 import { Card, CardContent } from "@/components/ui/card";
 import { PostFeed } from "@/components/post-feed";
-import type { PostPreviewPost } from "@/components/post-preview";
 
 export const Route = createFileRoute("/domain/$domain")({
   component: DomainPage,
@@ -51,11 +50,7 @@ function DomainPage() {
           </CardContent>
         </Card>
       ) : (
-        <PostFeed
-          posts={posts as PostPreviewPost[] | undefined}
-          currentUser={user}
-          showDomainLink={false}
-        />
+        <PostFeed posts={posts} currentUser={user} showDomainLink={false} />
       )}
     </div>
   );

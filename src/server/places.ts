@@ -8,6 +8,7 @@ import {
   generateSlug,
   validatePlaceName,
 } from "@/lib/place";
+import { postSelect, serializePosts } from "@/lib/post";
 
 // Zod schemas
 const getPlaceSchema = z.object({
@@ -102,38 +103,13 @@ export const getPlacePosts = createServerFn({ method: "GET" })
           slug,
         },
       },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        url: true,
-        domain: true,
-        authorId: true,
-        placeId: true,
-        createdAt: true,
-        updatedAt: true,
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            image: true,
-          },
-        },
-        place: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-      },
+      select: postSelect,
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return posts;
+    return serializePosts(posts);
   });
 
 // Create a new place

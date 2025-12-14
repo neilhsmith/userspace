@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PostFeed } from "@/components/post-feed";
-import type { PostPreviewPost } from "@/components/post-preview";
 import { useSession } from "@/lib/auth-client";
 import { getPosts } from "@/server/posts";
 
@@ -47,10 +46,7 @@ function HomePage() {
           </CardContent>
         </Card>
       ) : (
-        <PostFeed
-          posts={posts as PostPreviewPost[] | undefined}
-          currentUser={user}
-        />
+        <PostFeed posts={posts} currentUser={user} />
       )}
     </div>
   );
