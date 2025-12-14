@@ -77,7 +77,6 @@ export const getPlaceBySlug = createServerFn({ method: "GET" })
             id: true,
             name: true,
             email: true,
-            image: true,
           },
         },
         _count: {
@@ -160,7 +159,6 @@ export const createPlace = createServerFn({ method: "POST" })
             id: true,
             name: true,
             email: true,
-            image: true,
           },
         },
       },

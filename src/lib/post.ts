@@ -14,7 +14,6 @@ export const postSelect = {
       id: true,
       name: true,
       email: true,
-      image: true,
     },
   },
   place: {
