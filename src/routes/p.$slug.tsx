@@ -4,7 +4,6 @@ import { getPlaceBySlug, getPlacePosts } from "@/server/places";
 import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PostFeed } from "@/components/post-feed";
 
 export const Route = createFileRoute("/p/$slug")({
@@ -54,17 +53,9 @@ function PlacePage() {
           <div>
             <h1 className="text-3xl font-bold">{place.name}</h1>
             <p className="text-sm text-muted-foreground">p/{place.slug}</p>
-            <div className="flex items-center gap-2 mt-2 text-muted-foreground">
-              <span>Moderated by</span>
-              <Avatar className="h-5 w-5">
-                <AvatarImage src={place.moderator.image || undefined} />
-                <AvatarFallback className="text-xs">
-                  {place.moderator.name?.charAt(0) ||
-                    place.moderator.email?.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              <span>{place.moderator.name}</span>
-            </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              Moderated by {place.moderator.name || place.moderator.email}
+            </p>
             <p className="text-sm text-muted-foreground mt-1">
               {place._count.posts} {place._count.posts === 1 ? "post" : "posts"}
             </p>

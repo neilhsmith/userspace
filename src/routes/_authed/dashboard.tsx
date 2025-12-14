@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/_authed/dashboard")({
@@ -112,19 +111,10 @@ function DashboardPage() {
                           {post.title}
                         </Link>
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-2">
-                        <Avatar className="h-5 w-5">
-                          <AvatarImage src={post.author.image || undefined} />
-                          <AvatarFallback className="text-xs">
-                            {post.author.name?.charAt(0) ||
-                              post.author.email?.charAt(0)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span>
-                          {formatDistanceToNow(new Date(post.createdAt), {
-                            addSuffix: true,
-                          })}
-                        </span>
+                      <CardDescription>
+                        {formatDistanceToNow(new Date(post.createdAt), {
+                          addSuffix: true,
+                        })}
                       </CardDescription>
                     </div>
                     <Button asChild variant="outline" size="sm">

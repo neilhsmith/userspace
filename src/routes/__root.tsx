@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   HeadContent,
   Outlet,
@@ -16,14 +17,13 @@ import { Toaster } from "@/components/ui/sonner";
 import { signOut, useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Menu, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { getTopPlaces } from "@/server/places";
 
@@ -104,11 +104,13 @@ function Header() {
   const location = useLocation();
   const { data: session, isPending } = useSession();
   const user = session?.user;
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     try {
       await signOut();
       toast.success("Signed out successfully");
+      setMobileMenuOpen(false);
       navigate({ to: "/" });
     } catch {
       toast.error("Failed to sign out");
@@ -118,6 +120,7 @@ function Header() {
   return (
     <header className="border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Left side - Logo and nav */}
         <nav className="flex items-center gap-6">
           <Link
             to="/"
@@ -126,7 +129,7 @@ function Header() {
             Userspace
           </Link>
           {user && (
-            <>
+            <div className="hidden md:flex items-center gap-4">
               <Link
                 to="/dashboard"
                 className="text-sm text-muted-foreground hover:text-foreground transition-all active:opacity-70"
@@ -151,71 +154,194 @@ function Header() {
                   )}
                 </MatchRoute>
               </Link>
-            </>
+            </div>
           )}
         </nav>
 
-        {isPending ? (
-          <div className="h-8 w-8" />
-        ) : user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={user?.image || undefined}
-                    alt={user?.name || ""}
-                  />
-                  <AvatarFallback>
-                    {user?.name?.charAt(0).toUpperCase() ||
-                      user?.email?.charAt(0).toUpperCase() ||
-                      "U"}
-                  </AvatarFallback>
-                </Avatar>
+        {/* Right side - Desktop account bar */}
+        <div className="hidden md:flex items-center text-xs">
+          {isPending ? (
+            <div className="h-4 w-20" />
+          ) : user ? (
+            <div className="flex items-center gap-1.5">
+              <a
+                href="#"
+                className="text-foreground hover:underline font-medium"
+                onClick={(e) => e.preventDefault()}
+              >
+                {user.name || user.email?.split("@")[0]}
+              </a>
+              <span className="text-muted-foreground">(1)</span>
+              <span className="text-muted-foreground mx-1">|</span>
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-foreground hover:underline"
+                onClick={(e) => e.preventDefault()}
+                title="messages"
+              >
+                <Mail className="h-3.5 w-3.5" />
+              </a>
+              <span className="text-muted-foreground mx-1">|</span>
+              <a
+                href="#"
+                className="text-muted-foreground hover:text-foreground hover:underline"
+                onClick={(e) => e.preventDefault()}
+              >
+                preferences
+              </a>
+              <span className="text-muted-foreground mx-1">|</span>
+              <button
+                onClick={handleSignOut}
+                className="text-muted-foreground hover:text-foreground hover:underline cursor-pointer"
+              >
+                logout
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground">Want to join?</span>
+              <Link
+                to="/login"
+                search={{ redirect: location.pathname }}
+                className="text-foreground hover:underline font-medium ml-1"
+              >
+                Log in
+              </Link>
+              <span className="text-muted-foreground">or</span>
+              <Link
+                to="/signup"
+                className="text-foreground hover:underline font-medium"
+              >
+                sign up
+              </Link>
+              <span className="text-muted-foreground">in seconds.</span>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile menu */}
+        <div className="md:hidden">
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">
-                    {user?.name}
-                  </p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user?.email}
-                  </p>
-                  {(user?.role === "global_admin" ||
-                    user?.role === "admin") && (
-                    <span className="text-xs text-primary font-medium">
-                      {user?.role === "global_admin" ? "Global Admin" : "Admin"}
-                    </span>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-72">
+              <SheetHeader>
+                <SheetTitle>Menu</SheetTitle>
+              </SheetHeader>
+              <div className="flex flex-col gap-4 mt-6">
+                {/* Navigation links */}
+                <div className="flex flex-col gap-2">
+                  <Link
+                    to="/"
+                    className="text-sm hover:underline"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Home
+                  </Link>
+                  {user && (
+                    <>
+                      <Link
+                        to="/dashboard"
+                        className="text-sm hover:underline"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        to="/posts"
+                        className="text-sm hover:underline"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        Posts
+                      </Link>
+                      <Link
+                        to="/posts/new"
+                        className="text-sm hover:underline"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        New Post
+                      </Link>
+                      <Link
+                        to="/places/new"
+                        className="text-sm hover:underline"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        New Place
+                      </Link>
+                    </>
                   )}
                 </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link to="/posts/new">New Post</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/places/new">New Place</Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleSignOut}>
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <div className="flex items-center gap-2">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/login" search={{ redirect: location.pathname }}>
-                Sign in
-              </Link>
-            </Button>
-            <Button asChild size="sm">
-              <Link to="/signup">Sign up</Link>
-            </Button>
-          </div>
-        )}
+
+                {/* Divider */}
+                <div className="border-t" />
+
+                {/* Auth section */}
+                {isPending ? (
+                  <div className="h-8" />
+                ) : user ? (
+                  <div className="flex flex-col gap-2 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">
+                        {user.name || user.email?.split("@")[0]}
+                      </span>
+                      <span className="text-muted-foreground">(1)</span>
+                    </div>
+                    <a
+                      href="#"
+                      className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      <Mail className="h-4 w-4" />
+                      Messages
+                    </a>
+                    <a
+                      href="#"
+                      className="text-muted-foreground hover:text-foreground"
+                      onClick={(e) => e.preventDefault()}
+                    >
+                      Preferences
+                    </a>
+                    <button
+                      onClick={handleSignOut}
+                      className="text-left text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2 text-sm">
+                    <p className="text-muted-foreground">
+                      Want to join? Log in or sign up in seconds.
+                    </p>
+                    <div className="flex gap-2">
+                      <Button asChild size="sm" variant="outline">
+                        <Link
+                          to="/login"
+                          search={{ redirect: location.pathname }}
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Log in
+                        </Link>
+                      </Button>
+                      <Button asChild size="sm">
+                        <Link
+                          to="/signup"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          Sign up
+                        </Link>
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );
