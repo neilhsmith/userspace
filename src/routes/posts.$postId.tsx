@@ -171,7 +171,15 @@ function PostDetailPage() {
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <CardTitle className="text-2xl">{post.title}</CardTitle>
-              <CardDescription className="flex items-center gap-2">
+              <CardDescription className="flex items-center gap-2 flex-wrap">
+                <Link
+                  to="/c/$slug"
+                  params={{ slug: post.community.slug }}
+                  className="text-xs px-1.5 py-0.5 rounded bg-muted hover:bg-muted/80 transition-colors"
+                >
+                  {post.community.name}
+                </Link>
+                <span>·</span>
                 <Avatar className="h-5 w-5">
                   <AvatarImage src={post.author.image || undefined} />
                   <AvatarFallback className="text-xs">

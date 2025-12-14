@@ -8,6 +8,7 @@ import {
   useNavigate,
   useLocation,
 } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -24,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
+import { getTopCommunities } from "@/server/communities";
 
 import appCss from "../styles.css?url";
 
@@ -51,6 +53,49 @@ export const Route = createRootRoute({
   component: RootComponent,
   shellComponent: RootDocument,
 });
+
+function CommunityBar() {
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  const { data: communities } = useQuery({
+    queryKey: ["topCommunities"],
+    queryFn: () => getTopCommunities(),
+    staleTime: 0,
+    refetchOnMount: "always",
+  });
+
+  return (
+    <div className="bg-muted/50 border-b">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center gap-1 h-8 overflow-x-auto scrollbar-hide">
+          <span className="text-xs text-muted-foreground shrink-0 mr-1">
+            communities:
+          </span>
+          {communities?.map((community) => (
+            <Link
+              key={community.id}
+              to="/c/$slug"
+              params={{ slug: community.slug }}
+              className="text-xs px-2 py-0.5 rounded hover:bg-muted transition-colors shrink-0"
+              activeProps={{ className: "bg-muted font-medium" }}
+            >
+              {community.name}
+            </Link>
+          ))}
+          {user && (
+            <Link
+              to="/communities/new"
+              className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors shrink-0 ml-auto"
+            >
+              + Create
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function Header() {
   const navigate = useNavigate();
@@ -174,6 +219,7 @@ function Header() {
 function RootComponent() {
   return (
     <div className="min-h-screen bg-background">
+      <CommunityBar />
       <Header />
       <NavigationProgress />
       <main className="container mx-auto px-4 py-8">

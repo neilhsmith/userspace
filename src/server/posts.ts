@@ -12,6 +12,7 @@ const createPostSchema = z.object({
     .string()
     .min(1, "Content is required")
     .max(10000, "Content too long"),
+  communityId: z.string().min(1, "Community is required"),
 });
 
 const updatePostSchema = z.object({
@@ -51,6 +52,13 @@ export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
           image: true,
         },
       },
+      community: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
     },
     orderBy: {
       createdAt: "desc",
@@ -74,6 +82,13 @@ export const getPost = createServerFn({ method: "GET" }).handler(
             image: true,
           },
         },
+        community: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
       },
     });
     return post;
@@ -83,11 +98,20 @@ export const getPost = createServerFn({ method: "GET" }).handler(
 // Create a post
 export const createPost = createServerFn({ method: "POST" }).handler(
   async (ctx: { data: unknown }) => {
-    const { title, content } = createPostSchema.parse(ctx.data);
+    const { title, content, communityId } = createPostSchema.parse(ctx.data);
     const session = await getSession();
 
     if (!session) {
       throw new Error("Unauthorized");
+    }
+
+    // Verify community exists
+    const community = await prisma.community.findUnique({
+      where: { id: communityId },
+    });
+
+    if (!community) {
+      throw new Error("Community not found");
     }
 
     const post = await prisma.post.create({
@@ -95,6 +119,7 @@ export const createPost = createServerFn({ method: "POST" }).handler(
         title,
         content,
         authorId: session.user.id,
+        communityId,
       },
       include: {
         author: {
@@ -103,6 +128,13 @@ export const createPost = createServerFn({ method: "POST" }).handler(
             name: true,
             email: true,
             image: true,
+          },
+        },
+        community: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
           },
         },
       },
@@ -147,6 +179,13 @@ export const updatePost = createServerFn({ method: "POST" }).handler(
             name: true,
             email: true,
             image: true,
+          },
+        },
+        community: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
           },
         },
       },
@@ -208,6 +247,13 @@ export const getMyPosts = createServerFn({ method: "GET" }).handler(
             name: true,
             email: true,
             image: true,
+          },
+        },
+        community: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
           },
         },
       },

@@ -21,9 +21,10 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  sessions Session[]
-  accounts Account[]
-  posts    Post[]
+  sessions            Session[]
+  accounts            Account[]
+  posts               Post[]
+  moderatedCommunities Community[]
 }
 
 model Session {
@@ -66,12 +67,25 @@ model Verification {
 }
 
 // Application tables
+model Community {
+  id          String   @id @default(cuid())
+  name        String   @unique // display name (e.g. "Demo Community")
+  slug        String   @unique // normalized slug (e.g. "demo-community")
+  moderatorId String
+  moderator   User     @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+  posts       Post[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  communityId String
+  community   Community @relation(fields: [communityId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
