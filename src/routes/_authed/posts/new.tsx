@@ -80,8 +80,7 @@ function NewPostPage() {
       postType === "text"
         ? { title, content, placeId }
         : { title, url, placeId };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mutation.mutate as any)({ data });
+    mutation.mutate({ data });
   };
 
   const selectedPlace = places?.find((p) => p.id === placeId);

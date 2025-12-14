@@ -95,9 +95,10 @@ export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
 });
 
 // Get a single post
-export const getPost = createServerFn({ method: "GET" }).handler(
-  async (ctx: { data: unknown }) => {
-    const { id } = getPostSchema.parse(ctx.data);
+export const getPost = createServerFn({ method: "GET" })
+  .inputValidator(getPostSchema.parse)
+  .handler(async ({ data }) => {
+    const { id } = data;
     const post = await prisma.post.findUnique({
       where: { id },
       select: {
@@ -128,13 +129,13 @@ export const getPost = createServerFn({ method: "GET" }).handler(
       },
     });
     return post;
-  }
-);
+  });
 
 // Create a post
-export const createPost = createServerFn({ method: "POST" }).handler(
-  async (ctx: { data: unknown }) => {
-    const { title, content, url, placeId } = createPostSchema.parse(ctx.data);
+export const createPost = createServerFn({ method: "POST" })
+  .inputValidator(createPostSchema.parse)
+  .handler(async ({ data }) => {
+    const { title, content, url, placeId } = data;
     const session = await getSession();
 
     if (!session) {
@@ -189,13 +190,13 @@ export const createPost = createServerFn({ method: "POST" }).handler(
     });
 
     return post;
-  }
-);
+  });
 
 // Update a post
-export const updatePost = createServerFn({ method: "POST" }).handler(
-  async (ctx: { data: unknown }) => {
-    const { id, title, content, url } = updatePostSchema.parse(ctx.data);
+export const updatePost = createServerFn({ method: "POST" })
+  .inputValidator(updatePostSchema.parse)
+  .handler(async ({ data }) => {
+    const { id, title, content, url } = data;
     const session = await getSession();
 
     if (!session) {
@@ -252,13 +253,13 @@ export const updatePost = createServerFn({ method: "POST" }).handler(
     });
 
     return post;
-  }
-);
+  });
 
 // Delete a post
-export const deletePost = createServerFn({ method: "POST" }).handler(
-  async (ctx: { data: unknown }) => {
-    const { id } = deletePostSchema.parse(ctx.data);
+export const deletePost = createServerFn({ method: "POST" })
+  .inputValidator(deletePostSchema.parse)
+  .handler(async ({ data }) => {
+    const { id } = data;
     const session = await getSession();
 
     if (!session) {
@@ -284,8 +285,7 @@ export const deletePost = createServerFn({ method: "POST" }).handler(
     });
 
     return { success: true };
-  }
-);
+  });
 
 // Get posts by current user
 export const getMyPosts = createServerFn({ method: "GET" }).handler(
@@ -340,9 +340,10 @@ const getPostsByDomainSchema = z.object({
 });
 
 // Get posts by domain
-export const getPostsByDomain = createServerFn({ method: "GET" }).handler(
-  async (ctx: { data: unknown }) => {
-    const { domain } = getPostsByDomainSchema.parse(ctx.data);
+export const getPostsByDomain = createServerFn({ method: "GET" })
+  .inputValidator(getPostsByDomainSchema.parse)
+  .handler(async ({ data }) => {
+    const { domain } = data;
     const posts = await prisma.post.findMany({
       where: {
         domain,
@@ -378,5 +379,4 @@ export const getPostsByDomain = createServerFn({ method: "GET" }).handler(
       },
     });
     return posts;
-  }
-);
+  });

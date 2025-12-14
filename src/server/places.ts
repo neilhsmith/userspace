@@ -63,9 +63,10 @@ export const getAllPlaces = createServerFn({ method: "GET" }).handler(
 );
 
 // Get a single place by slug
-export const getPlaceBySlug = createServerFn({ method: "GET" }).handler(
-  async (ctx: { data: unknown }) => {
-    const { slug } = getPlaceSchema.parse(ctx.data);
+export const getPlaceBySlug = createServerFn({ method: "GET" })
+  .inputValidator(getPlaceSchema.parse)
+  .handler(async ({ data }) => {
+    const { slug } = data;
 
     const place = await prisma.place.findUnique({
       where: { slug },
@@ -87,13 +88,13 @@ export const getPlaceBySlug = createServerFn({ method: "GET" }).handler(
     });
 
     return place;
-  }
-);
+  });
 
 // Get posts for a place
-export const getPlacePosts = createServerFn({ method: "GET" }).handler(
-  async (ctx: { data: unknown }) => {
-    const { slug } = getPlaceSchema.parse(ctx.data);
+export const getPlacePosts = createServerFn({ method: "GET" })
+  .inputValidator(getPlaceSchema.parse)
+  .handler(async ({ data }) => {
+    const { slug } = data;
 
     const posts = await prisma.post.findMany({
       where: {
@@ -133,13 +134,13 @@ export const getPlacePosts = createServerFn({ method: "GET" }).handler(
     });
 
     return posts;
-  }
-);
+  });
 
 // Create a new place
-export const createPlace = createServerFn({ method: "POST" }).handler(
-  async (ctx: { data: unknown }) => {
-    const { name } = createPlaceSchema.parse(ctx.data);
+export const createPlace = createServerFn({ method: "POST" })
+  .inputValidator(createPlaceSchema.parse)
+  .handler(async ({ data }) => {
+    const { name } = data;
     const session = await getSession();
 
     if (!session) {
@@ -190,5 +191,4 @@ export const createPlace = createServerFn({ method: "POST" }).handler(
     });
 
     return place;
-  }
-);
+  });
