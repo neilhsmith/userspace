@@ -4,9 +4,11 @@ import {
   Scripts,
   createRootRoute,
   Link,
+  MatchRoute,
   useNavigate,
   useLocation,
 } from "@tanstack/react-router";
+import { NavigationProgress } from "@/components/navigation-progress";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { Toaster } from "@/components/ui/sonner";
@@ -70,24 +72,37 @@ function Header() {
     <header className="border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <nav className="flex items-center gap-6">
-          <Link to="/" className="text-xl font-bold">
+          <Link
+            to="/"
+            className="text-xl font-bold active:opacity-70 transition-opacity"
+          >
             Userspace
           </Link>
           {user && (
             <>
               <Link
                 to="/dashboard"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-all active:opacity-70"
                 activeProps={{ className: "text-foreground font-medium" }}
               >
-                Dashboard
+                <MatchRoute to="/dashboard" pending>
+                  {(match) => (
+                    <span className={match ? "animate-pulse" : ""}>
+                      Dashboard
+                    </span>
+                  )}
+                </MatchRoute>
               </Link>
               <Link
                 to="/posts"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-all active:opacity-70"
                 activeProps={{ className: "text-foreground font-medium" }}
               >
-                Posts
+                <MatchRoute to="/posts" pending>
+                  {(match) => (
+                    <span className={match ? "animate-pulse" : ""}>Posts</span>
+                  )}
+                </MatchRoute>
               </Link>
             </>
           )}
@@ -160,6 +175,7 @@ function RootComponent() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <NavigationProgress />
       <main className="container mx-auto px-4 py-8">
         <Outlet />
       </main>
