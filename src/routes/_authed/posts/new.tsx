@@ -4,13 +4,14 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPost } from "@/server/posts";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import {
   Card,
   CardContent,
   CardDescription,
   CardFooter,
+  CardForm,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -53,31 +54,33 @@ function NewPostPage() {
             Share your thoughts with the community
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="Enter post title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                disabled={mutation.isPending}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                placeholder="Write your post content..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-                disabled={mutation.isPending}
-                rows={10}
-              />
-            </div>
+        <CardForm onSubmit={handleSubmit}>
+          <CardContent>
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="title">Title</FieldLabel>
+                <Input
+                  id="title"
+                  placeholder="Enter post title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  disabled={mutation.isPending}
+                />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="content">Content</FieldLabel>
+                <Textarea
+                  id="content"
+                  placeholder="Write your post content..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  required
+                  disabled={mutation.isPending}
+                  rows={10}
+                />
+              </Field>
+            </FieldGroup>
           </CardContent>
           <CardFooter className="flex gap-2">
             <Button type="submit" disabled={mutation.isPending}>
@@ -92,7 +95,7 @@ function NewPostPage() {
               Cancel
             </Button>
           </CardFooter>
-        </form>
+        </CardForm>
       </Card>
     </div>
   );
