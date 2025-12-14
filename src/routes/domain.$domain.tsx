@@ -68,7 +68,7 @@ function DomainPage() {
               title: string;
               content: string | null;
               url: string | null;
-              domain: string | null;
+              domain: string;
               createdAt: string;
               author: {
                 id: string;
@@ -89,21 +89,31 @@ function DomainPage() {
                     <div className="space-y-1">
                       <CardTitle className="hover:underline">
                         {post.url ? (
-                          <a
-                            href={post.url}
-                            className="inline-flex items-center gap-2"
-                          >
-                            {post.title}
-                            {post.domain && (
-                              <span className="text-sm font-normal text-muted-foreground">
-                                ({post.domain})
-                              </span>
-                            )}
-                          </a>
+                          <>
+                            <a href={post.url}>
+                              {post.title}
+                            </a>
+                            <Link
+                              to="/domain/$domain"
+                              params={{ domain: post.domain }}
+                              className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
+                            >
+                              ({post.domain})
+                            </Link>
+                          </>
                         ) : (
-                          <Link to="/posts/$postId" params={{ postId: post.id }}>
-                            {post.title}
-                          </Link>
+                          <>
+                            <Link to="/posts/$postId" params={{ postId: post.id }}>
+                              {post.title}
+                            </Link>
+                            <Link
+                              to="/p/$slug"
+                              params={{ slug: post.place.slug }}
+                              className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
+                            >
+                              ({post.domain})
+                            </Link>
+                          </>
                         )}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2 flex-wrap">

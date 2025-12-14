@@ -134,9 +134,10 @@ export const createPost = createServerFn({ method: "POST" }).handler(
       throw new Error("Unauthorized");
     }
 
-    // Verify place exists
+    // Verify place exists and get slug for domain
     const place = await prisma.place.findUnique({
       where: { id: placeId },
+      select: { slug: true },
     });
 
     if (!place) {
@@ -148,7 +149,7 @@ export const createPost = createServerFn({ method: "POST" }).handler(
         title,
         content: content || null,
         url: url || null,
-        domain: url ? getDomain(url) : null,
+        domain: url ? getDomain(url) : `self.${place.slug}`,
         authorId: session.user.id,
         placeId,
       },
@@ -196,6 +197,7 @@ export const updatePost = createServerFn({ method: "POST" }).handler(
 
     const existingPost = await prisma.post.findUnique({
       where: { id },
+      include: { place: { select: { slug: true } } },
     });
 
     if (!existingPost) {
@@ -212,7 +214,7 @@ export const updatePost = createServerFn({ method: "POST" }).handler(
         title,
         content: content || null,
         url: url || null,
-        domain: url ? getDomain(url) : null,
+        domain: url ? getDomain(url) : `self.${existingPost.place.slug}`,
       },
       select: {
         id: true,

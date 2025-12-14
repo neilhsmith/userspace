@@ -197,18 +197,25 @@ function PostDetailPage() {
                     <a href={post.url} className="hover:underline">
                       {post.title}
                     </a>
-                    {post.domain && (
-                      <Link
-                        to="/domain/$domain"
-                        params={{ domain: post.domain }}
-                        className="text-base font-normal text-muted-foreground ml-2 hover:underline"
-                      >
-                        ({post.domain})
-                      </Link>
-                    )}
+                    <Link
+                      to="/domain/$domain"
+                      params={{ domain: post.domain }}
+                      className="text-base font-normal text-muted-foreground ml-2 hover:underline"
+                    >
+                      ({post.domain})
+                    </Link>
                   </>
                 ) : (
-                  post.title
+                  <>
+                    {post.title}
+                    <Link
+                      to="/p/$slug"
+                      params={{ slug: post.place.slug }}
+                      className="text-base font-normal text-muted-foreground ml-2 hover:underline"
+                    >
+                      ({post.domain})
+                    </Link>
+                  </>
                 )}
               </CardTitle>
               <CardDescription className="flex items-center gap-2 flex-wrap">

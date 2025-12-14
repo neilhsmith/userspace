@@ -83,7 +83,7 @@ model Post {
   title     String
   content   String?  // Text content for text posts (null for link posts)
   url       String?  // External URL for link posts (null for text posts)
-  domain    String?  // Hostname extracted from URL for link posts (null for text posts)
+  domain    String   // For link posts: hostname from URL. For text posts: self.{placeSlug}
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   placeId   String

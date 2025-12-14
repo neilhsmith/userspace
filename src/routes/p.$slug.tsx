@@ -120,7 +120,7 @@ function PlacePage() {
               title: string;
               content: string | null;
               url: string | null;
-              domain: string | null;
+              domain: string;
               createdAt: string;
               author: {
                 id: string;
@@ -140,20 +140,27 @@ function PlacePage() {
                             <a href={post.url}>
                               {post.title}
                             </a>
-                            {post.domain && (
-                              <Link
-                                to="/domain/$domain"
-                                params={{ domain: post.domain }}
-                                className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
-                              >
-                                ({post.domain})
-                              </Link>
-                            )}
+                            <Link
+                              to="/domain/$domain"
+                              params={{ domain: post.domain }}
+                              className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
+                            >
+                              ({post.domain})
+                            </Link>
                           </>
                         ) : (
-                          <Link to="/posts/$postId" params={{ postId: post.id }}>
-                            {post.title}
-                          </Link>
+                          <>
+                            <Link to="/posts/$postId" params={{ postId: post.id }}>
+                              {post.title}
+                            </Link>
+                            <Link
+                              to="/p/$slug"
+                              params={{ slug }}
+                              className="text-sm font-normal text-muted-foreground ml-2 hover:underline"
+                            >
+                              ({post.domain})
+                            </Link>
+                          </>
                         )}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2">

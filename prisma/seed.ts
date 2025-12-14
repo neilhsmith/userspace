@@ -389,7 +389,7 @@ async function main() {
         title: seedPost.title,
         content: seedPost.content || null,
         url: seedPost.url || null,
-        domain: seedPost.url ? getDomain(seedPost.url) : null,
+        domain: seedPost.url ? getDomain(seedPost.url) : `self.${seedPost.placeSlug}`,
         placeId,
         authorId,
       },
