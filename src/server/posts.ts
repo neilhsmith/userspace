@@ -6,23 +6,33 @@ import { canEditPost, canDeletePost } from "@/lib/rbac";
 import { useRequest } from "nitro/context";
 
 // Zod schemas
-const createPostSchema = z.object({
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
-  content: z
-    .string()
-    .min(1, "Content is required")
-    .max(10000, "Content too long"),
-  placeId: z.string().min(1, "Place is required"),
-});
+const createPostSchema = z
+  .object({
+    title: z.string().min(1, "Title is required").max(200, "Title too long"),
+    content: z.string().max(10000, "Content too long").optional(),
+    url: z.string().url("Invalid URL").optional(),
+    placeId: z.string().min(1, "Place is required"),
+  })
+  .refine((data) => data.content || data.url, {
+    message: "Either content or URL is required",
+  })
+  .refine((data) => !(data.content && data.url), {
+    message: "Cannot have both content and URL",
+  });
 
-const updatePostSchema = z.object({
-  id: z.string(),
-  title: z.string().min(1, "Title is required").max(200, "Title too long"),
-  content: z
-    .string()
-    .min(1, "Content is required")
-    .max(10000, "Content too long"),
-});
+const updatePostSchema = z
+  .object({
+    id: z.string(),
+    title: z.string().min(1, "Title is required").max(200, "Title too long"),
+    content: z.string().max(10000, "Content too long").optional(),
+    url: z.string().url("Invalid URL").optional(),
+  })
+  .refine((data) => data.content || data.url, {
+    message: "Either content or URL is required",
+  })
+  .refine((data) => !(data.content && data.url), {
+    message: "Cannot have both content and URL",
+  });
 
 const deletePostSchema = z.object({
   id: z.string(),
@@ -43,7 +53,15 @@ async function getSession() {
 // Get all posts
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
   const posts = await prisma.post.findMany({
-    include: {
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      url: true,
+      authorId: true,
+      placeId: true,
+      createdAt: true,
+      updatedAt: true,
       author: {
         select: {
           id: true,
@@ -73,7 +91,15 @@ export const getPost = createServerFn({ method: "GET" }).handler(
     const { id } = getPostSchema.parse(ctx.data);
     const post = await prisma.post.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -98,7 +124,7 @@ export const getPost = createServerFn({ method: "GET" }).handler(
 // Create a post
 export const createPost = createServerFn({ method: "POST" }).handler(
   async (ctx: { data: unknown }) => {
-    const { title, content, placeId } = createPostSchema.parse(ctx.data);
+    const { title, content, url, placeId } = createPostSchema.parse(ctx.data);
     const session = await getSession();
 
     if (!session) {
@@ -117,11 +143,20 @@ export const createPost = createServerFn({ method: "POST" }).handler(
     const post = await prisma.post.create({
       data: {
         title,
-        content,
+        content: content || null,
+        url: url || null,
         authorId: session.user.id,
         placeId,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -147,7 +182,7 @@ export const createPost = createServerFn({ method: "POST" }).handler(
 // Update a post
 export const updatePost = createServerFn({ method: "POST" }).handler(
   async (ctx: { data: unknown }) => {
-    const { id, title, content } = updatePostSchema.parse(ctx.data);
+    const { id, title, content, url } = updatePostSchema.parse(ctx.data);
     const session = await getSession();
 
     if (!session) {
@@ -170,9 +205,18 @@ export const updatePost = createServerFn({ method: "POST" }).handler(
       where: { id },
       data: {
         title,
-        content,
+        content: content || null,
+        url: url || null,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,
@@ -240,7 +284,15 @@ export const getMyPosts = createServerFn({ method: "GET" }).handler(
       where: {
         authorId: session.user.id,
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        url: true,
+        authorId: true,
+        placeId: true,
+        createdAt: true,
+        updatedAt: true,
         author: {
           select: {
             id: true,

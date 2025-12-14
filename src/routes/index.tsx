@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "@/lib/auth-client";
 import { getPosts } from "@/server/posts";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { getDomain } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/")({
@@ -62,9 +63,20 @@ function HomePage() {
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <CardTitle className="hover:underline">
-                      <Link to="/posts/$postId" params={{ postId: post.id }}>
-                        {post.title}
-                      </Link>
+                      {post.url ? (
+                        <>
+                          <a href={post.url}>
+                            {post.title}
+                          </a>
+                          <span className="text-sm font-normal text-muted-foreground ml-2">
+                            ({getDomain(post.url)})
+                          </span>
+                        </>
+                      ) : (
+                        <Link to="/posts/$postId" params={{ postId: post.id }}>
+                          {post.title}
+                        </Link>
+                      )}
                     </CardTitle>
                     <CardDescription className="flex items-center gap-2 flex-wrap">
                       <Link
@@ -101,11 +113,13 @@ function HomePage() {
                     )}
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground line-clamp-3">
-                  {post.content}
-                </p>
-              </CardContent>
+              {post.content && (
+                <CardContent>
+                  <p className="text-muted-foreground line-clamp-3">
+                    {post.content}
+                  </p>
+                </CardContent>
+              )}
               <CardFooter>
                 <Button asChild variant="ghost" size="sm">
                   <Link to="/posts/$postId" params={{ postId: post.id }}>

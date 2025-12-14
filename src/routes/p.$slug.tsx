@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getPlaceBySlug, getPlacePosts } from "@/server/places";
 import { useSession } from "@/lib/auth-client";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { getDomain } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -118,7 +119,8 @@ function PlacePage() {
             (post: {
               id: string;
               title: string;
-              content: string;
+              content: string | null;
+              url: string | null;
               createdAt: string;
               author: {
                 id: string;
@@ -133,9 +135,18 @@ function PlacePage() {
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
                       <CardTitle className="hover:underline">
-                        <Link to="/posts/$postId" params={{ postId: post.id }}>
-                          {post.title}
-                        </Link>
+                        {post.url ? (
+                          <a href={post.url} className="inline-flex items-center gap-2">
+                            {post.title}
+                            <span className="text-sm font-normal text-muted-foreground">
+                              ({getDomain(post.url)})
+                            </span>
+                          </a>
+                        ) : (
+                          <Link to="/posts/$postId" params={{ postId: post.id }}>
+                            {post.title}
+                          </Link>
+                        )}
                       </CardTitle>
                       <CardDescription className="flex items-center gap-2">
                         <Avatar className="h-5 w-5">
@@ -168,11 +179,13 @@ function PlacePage() {
                       )}
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground line-clamp-3">
-                    {post.content}
-                  </p>
-                </CardContent>
+                {post.content && (
+                  <CardContent>
+                    <p className="text-muted-foreground line-clamp-3">
+                      {post.content}
+                    </p>
+                  </CardContent>
+                )}
                 <CardFooter>
                   <Button asChild variant="ghost" size="sm">
                     <Link to="/posts/$postId" params={{ postId: post.id }}>

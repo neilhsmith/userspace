@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getPost, updatePost, deletePost } from "@/server/posts";
 import { useSession } from "@/lib/auth-client";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { getDomain } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ function PostDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [url, setUrl] = useState("");
 
   const {
     data: post,
@@ -73,15 +75,21 @@ function PostDetailPage() {
   const handleEdit = () => {
     if (post) {
       setTitle(post.title);
-      setContent(post.content);
+      setContent(post.content || "");
+      setUrl(post.url || "");
       setIsEditing(true);
     }
   };
 
+  const isLinkPost = post?.url && !post?.content;
+
   const handleUpdate = (e: React.FormEvent) => {
     e.preventDefault();
+    const data = isLinkPost
+      ? { id: postId, title, url }
+      : { id: postId, title, content };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (updateMutation.mutate as any)({ data: { id: postId, title, content } });
+    (updateMutation.mutate as any)({ data });
   };
 
   const handleDelete = () => {
@@ -133,17 +141,31 @@ function PostDetailPage() {
                   disabled={updateMutation.isPending}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="content">Content</Label>
-                <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                  disabled={updateMutation.isPending}
-                  rows={10}
-                />
-              </div>
+              {isLinkPost ? (
+                <div className="space-y-2">
+                  <Label htmlFor="url">URL</Label>
+                  <Input
+                    id="url"
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    required
+                    disabled={updateMutation.isPending}
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="content">Content</Label>
+                  <Textarea
+                    id="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    required
+                    disabled={updateMutation.isPending}
+                    rows={10}
+                  />
+                </div>
+              )}
             </CardContent>
             <CardFooter className="flex gap-2">
               <Button type="submit" disabled={updateMutation.isPending}>
@@ -170,7 +192,20 @@ function PostDetailPage() {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-2xl">{post.title}</CardTitle>
+              <CardTitle className="text-2xl">
+                {post.url ? (
+                  <>
+                    <a href={post.url} className="hover:underline">
+                      {post.title}
+                    </a>
+                    <span className="text-base font-normal text-muted-foreground ml-2">
+                      ({getDomain(post.url)})
+                    </span>
+                  </>
+                ) : (
+                  post.title
+                )}
+              </CardTitle>
               <CardDescription className="flex items-center gap-2 flex-wrap">
                 <Link
                   to="/p/$slug"
@@ -198,9 +233,11 @@ function PostDetailPage() {
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <p className="whitespace-pre-wrap">{post.content}</p>
-        </CardContent>
+        {post.content && (
+          <CardContent>
+            <p className="whitespace-pre-wrap">{post.content}</p>
+          </CardContent>
+        )}
         <Separator />
         <CardFooter className="flex justify-between pt-4">
           <Button asChild variant="ghost">

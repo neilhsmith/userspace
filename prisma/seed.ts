@@ -87,7 +87,8 @@ const seedPlaces: SeedPlace[] = [
 
 interface SeedPost {
   title: string;
-  content: string;
+  content?: string;
+  url?: string;
   placeSlug: string;
   authorEmail: string;
 }
@@ -242,6 +243,37 @@ const seedPosts: SeedPost[] = [
     placeSlug: "funny",
     authorEmail: "user2@example.com",
   },
+  // Link posts
+  {
+    title: "TIL Japan shut itself off from the world for over 200 years",
+    url: "https://en.wikipedia.org/wiki/Sakoku",
+    placeSlug: "science",
+    authorEmail: "user1@example.com",
+  },
+  {
+    title: "React 19 is now stable!",
+    url: "https://react.dev/blog/2024/12/05/react-19",
+    placeSlug: "react",
+    authorEmail: "admin1@example.com",
+  },
+  {
+    title: "The Rust Programming Language Book - Free Online",
+    url: "https://doc.rust-lang.org/book/",
+    placeSlug: "rust",
+    authorEmail: "user2@example.com",
+  },
+  {
+    title: "GitHub Copilot now free in VS Code",
+    url: "https://github.blog/news-insights/product-news/github-copilot-in-vscode-free/",
+    placeSlug: "technology",
+    authorEmail: "globaladmin@example.com",
+  },
+  {
+    title: "How DNS works - A comic explanation",
+    url: "https://howdns.works/",
+    placeSlug: "webdev",
+    authorEmail: "user3@example.com",
+  },
 ];
 
 async function main() {
@@ -356,7 +388,8 @@ async function main() {
     await prisma.post.create({
       data: {
         title: seedPost.title,
-        content: seedPost.content,
+        content: seedPost.content || null,
+        url: seedPost.url || null,
         placeId,
         authorId,
       },
