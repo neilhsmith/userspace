@@ -66,7 +66,8 @@ CREATE TABLE "Place" (
 CREATE TABLE "Post" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
+    "content" TEXT,
+    "url" TEXT,
     "authorId" TEXT NOT NULL,
     "placeId" TEXT NOT NULL,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
