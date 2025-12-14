@@ -43,8 +43,7 @@ function PostDetailPage() {
     error,
   } = useQuery({
     queryKey: ["post", postId],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queryFn: () => (getPost as any)({ data: { id: postId } }),
+    queryFn: () => getPost({ data: { id: postId } }),
   });
 
   const updateMutation = useMutation({
@@ -88,14 +87,12 @@ function PostDetailPage() {
     const data = isLinkPost
       ? { id: postId, title, url }
       : { id: postId, title, content };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (updateMutation.mutate as any)({ data });
+    updateMutation.mutate({ data });
   };
 
   const handleDelete = () => {
     if (confirm("Are you sure you want to delete this post?")) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (deleteMutation.mutate as any)({ data: { id: postId } });
+      deleteMutation.mutate({ data: { id: postId } });
     }
   };
 

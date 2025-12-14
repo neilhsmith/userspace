@@ -43,8 +43,7 @@ function NewPlacePage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (mutation.mutate as any)({ data: { name } });
+    mutation.mutate({ data: { name } });
   };
 
   return (
