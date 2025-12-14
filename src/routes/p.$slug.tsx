@@ -102,7 +102,7 @@ function PlacePage() {
         <PostFeed
           posts={posts as PostPreviewPost[] | undefined}
           currentUser={user}
-          showPlaceChip={false}
+          showPlace={false}
         />
       )}
     </div>

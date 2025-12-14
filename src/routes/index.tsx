@@ -50,7 +50,6 @@ function HomePage() {
         <PostFeed
           posts={posts as PostPreviewPost[] | undefined}
           currentUser={user}
-          pendingReadMore
         />
       )}
     </div>

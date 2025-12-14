@@ -4,28 +4,28 @@ import { PostPreview, type PostPreviewPost } from "@/components/post-preview";
 type PostFeedProps = {
   posts: PostPreviewPost[] | undefined;
   currentUser?: Session["user"] | null;
-  showPlaceChip?: boolean;
+  showPlace?: boolean;
   showDomainLink?: boolean;
-  pendingReadMore?: boolean;
+  startIndex?: number;
 };
 
 export function PostFeed({
   posts,
   currentUser,
-  showPlaceChip,
+  showPlace,
   showDomainLink,
-  pendingReadMore,
+  startIndex = 1,
 }: PostFeedProps) {
   return (
-    <div className="grid gap-4">
-      {posts?.map((post) => (
+    <div className="divide-y divide-border">
+      {posts?.map((post, i) => (
         <PostPreview
           key={post.id}
           post={post}
+          index={startIndex + i}
           currentUser={currentUser}
-          showPlaceChip={showPlaceChip}
+          showPlace={showPlace}
           showDomainLink={showDomainLink}
-          pendingReadMore={pendingReadMore}
         />
       ))}
     </div>
