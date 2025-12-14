@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getPostsByDomain } from "@/server/posts";
 import { useSession } from "@/lib/auth-client";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { safeHref } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -90,7 +91,11 @@ function DomainPage() {
                       <CardTitle className="hover:underline">
                         {post.url ? (
                           <>
-                            <a href={post.url}>
+                            <a
+                              href={safeHref(post.url)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
                               {post.title}
                             </a>
                             <Link
@@ -103,7 +108,10 @@ function DomainPage() {
                           </>
                         ) : (
                           <>
-                            <Link to="/posts/$postId" params={{ postId: post.id }}>
+                            <Link
+                              to="/posts/$postId"
+                              params={{ postId: post.id }}
+                            >
                               {post.title}
                             </Link>
                             <Link

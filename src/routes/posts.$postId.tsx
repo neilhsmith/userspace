@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
+import { safeHref } from "@/lib/utils";
 
 export const Route = createFileRoute("/posts/$postId")({
   component: PostDetailPage,
@@ -194,7 +195,12 @@ function PostDetailPage() {
               <CardTitle className="text-2xl">
                 {post.url ? (
                   <>
-                    <a href={post.url} className="hover:underline">
+                    <a
+                      href={safeHref(post.url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:underline"
+                    >
                       {post.title}
                     </a>
                     <Link

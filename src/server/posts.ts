@@ -3,15 +3,22 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
-import { getDomain } from "@/lib/utils";
+import { getDomain, isSafeHttpUrl } from "@/lib/utils";
 import { useRequest } from "nitro/context";
 
 // Zod schemas
+const httpUrlSchema = z
+  .string()
+  .url("Invalid URL")
+  .refine((value) => isSafeHttpUrl(value), {
+    message: "URL must start with http:// or https://",
+  });
+
 const createPostSchema = z
   .object({
     title: z.string().min(1, "Title is required").max(200, "Title too long"),
     content: z.string().max(10000, "Content too long").optional(),
-    url: z.string().url("Invalid URL").optional(),
+    url: httpUrlSchema.optional(),
     placeId: z.string().min(1, "Place is required"),
   })
   .refine((data) => data.content || data.url, {
@@ -26,7 +33,7 @@ const updatePostSchema = z
     id: z.string(),
     title: z.string().min(1, "Title is required").max(200, "Title too long"),
     content: z.string().max(10000, "Content too long").optional(),
-    url: z.string().url("Invalid URL").optional(),
+    url: httpUrlSchema.optional(),
   })
   .refine((data) => data.content || data.url, {
     message: "Either content or URL is required",

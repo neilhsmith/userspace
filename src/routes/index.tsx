@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useSession } from "@/lib/auth-client";
 import { getPosts } from "@/server/posts";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { safeHref } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 
 export const Route = createFileRoute("/")({
@@ -64,7 +65,13 @@ function HomePage() {
                     <CardTitle>
                       {post.url ? (
                         <>
-                          <a href={post.url}>{post.title}</a>
+                          <a
+                            href={safeHref(post.url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {post.title}
+                          </a>
                           <Link
                             to="/domain/$domain"
                             params={{ domain: post.domain }}
@@ -75,7 +82,10 @@ function HomePage() {
                         </>
                       ) : (
                         <>
-                          <Link to="/posts/$postId" params={{ postId: post.id }}>
+                          <Link
+                            to="/posts/$postId"
+                            params={{ postId: post.id }}
+                          >
                             {post.title}
                           </Link>
                           <Link

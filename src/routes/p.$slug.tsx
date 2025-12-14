@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getPlaceBySlug, getPlacePosts } from "@/server/places";
 import { useSession } from "@/lib/auth-client";
 import { canEditPost, canDeletePost } from "@/lib/rbac";
+import { safeHref } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -73,13 +74,10 @@ function PlacePage() {
                     place.moderator.email?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
-              <span>
-                {place.moderator.name || place.moderator.email}
-              </span>
+              <span>{place.moderator.name}</span>
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {place._count.posts}{" "}
-              {place._count.posts === 1 ? "post" : "posts"}
+              {place._count.posts} {place._count.posts === 1 ? "post" : "posts"}
             </p>
           </div>
           {user && (
@@ -100,9 +98,7 @@ function PlacePage() {
       ) : posts?.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">
-              No posts in this place yet
-            </p>
+            <p className="text-muted-foreground">No posts in this place yet</p>
             {user && (
               <Button asChild className="mt-4">
                 <Link to="/posts/new" search={{ place: place.slug }}>
@@ -137,7 +133,11 @@ function PlacePage() {
                       <CardTitle className="hover:underline">
                         {post.url ? (
                           <>
-                            <a href={post.url}>
+                            <a
+                              href={safeHref(post.url)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
                               {post.title}
                             </a>
                             <Link
@@ -150,7 +150,10 @@ function PlacePage() {
                           </>
                         ) : (
                           <>
-                            <Link to="/posts/$postId" params={{ postId: post.id }}>
+                            <Link
+                              to="/posts/$postId"
+                              params={{ postId: post.id }}
+                            >
                               {post.title}
                             </Link>
                             <Link
