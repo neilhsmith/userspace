@@ -5,6 +5,7 @@ import {
   createRootRoute,
   Link,
   useNavigate,
+  useLocation,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -51,6 +52,7 @@ export const Route = createRootRoute({
 
 function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: session, isPending } = useSession();
   const user = session?.user;
 
@@ -140,7 +142,9 @@ function Header() {
         ) : (
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="sm">
-              <Link to="/login">Sign in</Link>
+              <Link to="/login" search={{ redirect: location.pathname }}>
+                Sign in
+              </Link>
             </Button>
             <Button asChild size="sm">
               <Link to="/signup">Sign up</Link>

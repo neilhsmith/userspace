@@ -7,7 +7,8 @@ export const authMiddleware = createMiddleware().server(
     const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session) {
-      throw redirect({ to: "/login" });
+      const url = new URL(request.url);
+      throw redirect({ to: "/login", search: { redirect: url.pathname } });
     }
 
     return next({
@@ -24,7 +25,8 @@ export const adminMiddleware = createMiddleware().server(
     const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session) {
-      throw redirect({ to: "/login" });
+      const url = new URL(request.url);
+      throw redirect({ to: "/login", search: { redirect: url.pathname } });
     }
 
     if (session.user.role !== "admin" && session.user.role !== "global_admin") {
