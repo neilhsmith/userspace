@@ -3,11 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { useRequest } from "nitro/context";
-import {
-  normalizePlaceName,
-  generateSlug,
-  validatePlaceName,
-} from "@/lib/place";
+import { normalizePlaceName, generateSlug } from "@/lib/place";
 import { postSelect, serializePosts } from "@/lib/post";
 
 // Zod schemas
@@ -16,7 +12,38 @@ const getPlaceSchema = z.object({
 });
 
 const createPlaceSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .superRefine((name, ctx) => {
+      const normalized = normalizePlaceName(name);
+      const slug = generateSlug(name);
+
+      if (normalized.length < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Place name must be at least 3 characters",
+        });
+      }
+      if (normalized.length > 50) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Place name must be 50 characters or less",
+        });
+      }
+      if (slug.length < 3) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Place name must contain at least 3 alphanumeric characters",
+        });
+      }
+      if (slug.length > 30) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Place slug must be 30 characters or less",
+        });
+      }
+    }),
 });
 
 // Helper to get current session from request headers
@@ -135,11 +162,6 @@ export const createPlace = createServerFn({ method: "POST" })
 
     const normalizedName = normalizePlaceName(name);
     const slug = generateSlug(name);
-    const validationError = validatePlaceName(name);
-
-    if (validationError) {
-      throw new Error(validationError);
-    }
 
     // Check if place with same name or slug already exists
     const existingByName = await prisma.place.findUnique({
