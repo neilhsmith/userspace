@@ -4,6 +4,7 @@ import { canDeletePost, canEditPost } from "@/lib/rbac";
 import type { Post } from "@/lib/post";
 import { safeHref } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
+import { VoteButtons } from "@/components/vote-buttons";
 
 type PostPreviewProps = {
   post: Post;
@@ -25,12 +26,21 @@ export function PostPreview({
     (canEditPost(currentUser, post) || canDeletePost(currentUser, post));
 
   return (
-    <div className="flex gap-2 py-2 text-sm">
+    <div className="flex gap-3 py-2 text-sm">
       {index !== undefined && (
-        <span className="text-muted-foreground w-6 text-right shrink-0">
+        <span className="text-muted-foreground/60 w-6 text-right shrink-0 self-center text-sm font-normal leading-none tabular-nums">
           {index}
         </span>
       )}
+
+      <div className="flex self-center">
+        <VoteButtons
+          post={post}
+          isAuthenticated={!!currentUser}
+          orientation="vertical"
+          size="md"
+        />
+      </div>
 
       <div className="flex flex-col gap-0.5 min-w-0">
         <div className="leading-tight text-lg">

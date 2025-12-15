@@ -61,8 +61,20 @@ async function getSession() {
 
 // Get all posts
 export const getPosts = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await getSession().catch(() => null);
+  const userId = session?.user?.id ?? null;
+
   const posts = await prisma.post.findMany({
-    select: postSelect,
+    select: {
+      ...postSelect,
+      ...(userId && {
+        votes: {
+          where: { userId },
+          select: { value: true },
+          take: 1,
+        },
+      }),
+    },
     orderBy: {
       createdAt: "desc",
     },
@@ -75,9 +87,21 @@ export const getPost = createServerFn({ method: "GET" })
   .inputValidator(getPostSchema.parse)
   .handler(async ({ data }) => {
     const { id } = data;
+    const session = await getSession().catch(() => null);
+    const userId = session?.user?.id ?? null;
+
     const post = await prisma.post.findUnique({
       where: { id },
-      select: postSelect,
+      select: {
+        ...postSelect,
+        ...(userId && {
+          votes: {
+            where: { userId },
+            select: { value: true },
+            take: 1,
+          },
+        }),
+      },
     });
     return post ? serializePost(post) : null;
   });
@@ -197,11 +221,20 @@ export const getMyPosts = createServerFn({ method: "GET" }).handler(
       throw new Error("Unauthorized");
     }
 
+    const userId = session.user.id;
+
     const posts = await prisma.post.findMany({
       where: {
-        authorId: session.user.id,
+        authorId: userId,
       },
-      select: postSelect,
+      select: {
+        ...postSelect,
+        votes: {
+          where: { userId },
+          select: { value: true },
+          take: 1,
+        },
+      },
       orderBy: {
         createdAt: "desc",
       },
@@ -220,11 +253,23 @@ export const getPostsByDomain = createServerFn({ method: "GET" })
   .inputValidator(getPostsByDomainSchema.parse)
   .handler(async ({ data }) => {
     const { domain } = data;
+    const session = await getSession().catch(() => null);
+    const userId = session?.user?.id ?? null;
+
     const posts = await prisma.post.findMany({
       where: {
         domain,
       },
-      select: postSelect,
+      select: {
+        ...postSelect,
+        ...(userId && {
+          votes: {
+            where: { userId },
+            select: { value: true },
+            take: 1,
+          },
+        }),
+      },
       orderBy: {
         createdAt: "desc",
       },
