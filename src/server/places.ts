@@ -151,7 +151,13 @@ export const getPlacePosts = createServerFn({ method: "GET" })
 
 // Create a new place
 export const createPlace = createServerFn({ method: "POST" })
-  .inputValidator(createPlaceSchema.parse)
+  .inputValidator((input) => {
+    const result = createPlaceSchema.safeParse(input);
+    if (!result.success) {
+      throw new Error(result.error.issues[0].message);
+    }
+    return result.data;
+  })
   .handler(async ({ data }) => {
     const { name } = data;
     const session = await getSession();
