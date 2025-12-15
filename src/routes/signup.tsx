@@ -1,8 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { signUp } from "@/lib/auth-client";
-import { subscribeToDefaultPlaces } from "@/server/subscriptions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -23,7 +21,6 @@ export const Route = createFileRoute("/signup")({
 
 function SignupPage() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,10 +53,6 @@ function SignupPage() {
         toast.error(result.error.message || "Failed to sign up");
         return;
       }
-
-      // Subscribe new user to default places
-      await subscribeToDefaultPlaces();
-      queryClient.invalidateQueries({ queryKey: ["mySubscriptions"] });
 
       toast.success("Account created successfully!");
       navigate({ to: "/dashboard" });
