@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getAppStats } from "@/server/admin";
 import {
@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_admin/admin/")({
   component: AdminIndexPage,
@@ -83,6 +84,18 @@ function AdminIndexPage() {
           </Card>
         </div>
       )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Manage application settings</CardDescription>
+        </CardHeader>
+        <CardContent className="flex gap-4">
+          <Link to="/admin/default-places">
+            <Button variant="outline">Manage Default Places</Button>
+          </Link>
+        </CardContent>
+      </Card>
     </div>
   );
 }

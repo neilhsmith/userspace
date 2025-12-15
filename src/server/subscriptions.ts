@@ -99,3 +99,43 @@ export const checkSubscription = createServerFn({ method: "GET" })
 
     return { subscribed: !!subscription };
   });
+
+// Subscribe current user to all default places
+export const subscribeToDefaultPlaces = createServerFn({
+  method: "POST",
+}).handler(async () => {
+  const session = await getSession();
+
+  if (!session) {
+    throw new Error("Unauthorized: Must be logged in");
+  }
+
+  const userId = session.user.id;
+
+  // Get all default places
+  const defaultPlaces = await prisma.place.findMany({
+    where: { isDefault: true },
+    select: { id: true },
+  });
+
+  if (defaultPlaces.length === 0) {
+    return { subscribed: 0 };
+  }
+
+  // Create subscriptions for each default place (skip if already exists)
+  let subscribed = 0;
+  for (const place of defaultPlaces) {
+    const existing = await prisma.subscription.findUnique({
+      where: { userId_placeId: { userId, placeId: place.id } },
+    });
+
+    if (!existing) {
+      await prisma.subscription.create({
+        data: { userId, placeId: place.id },
+      });
+      subscribed++;
+    }
+  }
+
+  return { subscribed };
+});

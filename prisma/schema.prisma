@@ -72,6 +72,7 @@ model Place {
   id          String   @id @default(cuid())
   name        String   @unique // display name (e.g. "Demo Place")
   slug        String   @unique // normalized slug (e.g. "demo-place")
+  isDefault   Boolean  @default(false) // new users are auto-subscribed to default places
   moderatorId String
   moderator   User     @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
   posts       Post[]

@@ -24,6 +24,7 @@ import { Route as AdminAdminIndexRouteImport } from './routes/_admin/admin/index
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 import { Route as AuthedPostsNewRouteImport } from './routes/_authed/posts/new'
 import { Route as AuthedPlacesNewRouteImport } from './routes/_authed/places/new'
+import { Route as AdminAdminDefaultPlacesRouteImport } from './routes/_admin/admin/default-places'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -98,6 +99,11 @@ const AuthedPlacesNewRoute = AuthedPlacesNewRouteImport.update({
   path: '/places/new',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AdminAdminDefaultPlacesRoute = AdminAdminDefaultPlacesRouteImport.update({
+  id: '/admin/default-places',
+  path: '/admin/default-places',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -108,6 +114,7 @@ export interface FileRoutesByFullPath {
   '/domain/$domain': typeof DomainDomainRoute
   '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/admin/default-places': typeof AdminAdminDefaultPlacesRoute
   '/places/new': typeof AuthedPlacesNewRoute
   '/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/domain/$domain': typeof DomainDomainRoute
   '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/admin/default-places': typeof AdminAdminDefaultPlacesRoute
   '/places/new': typeof AuthedPlacesNewRoute
   '/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -141,6 +149,7 @@ export interface FileRoutesById {
   '/domain/$domain': typeof DomainDomainRoute
   '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
+  '/_admin/admin/default-places': typeof AdminAdminDefaultPlacesRoute
   '/_authed/places/new': typeof AuthedPlacesNewRoute
   '/_authed/posts/new': typeof AuthedPostsNewRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/domain/$domain'
     | '/p/$slug'
     | '/posts/$postId'
+    | '/admin/default-places'
     | '/places/new'
     | '/posts/new'
     | '/api/auth/$'
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/domain/$domain'
     | '/p/$slug'
     | '/posts/$postId'
+    | '/admin/default-places'
     | '/places/new'
     | '/posts/new'
     | '/api/auth/$'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/domain/$domain'
     | '/p/$slug'
     | '/posts/$postId'
+    | '/_admin/admin/default-places'
     | '/_authed/places/new'
     | '/_authed/posts/new'
     | '/api/auth/$'
@@ -316,14 +328,23 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedPlacesNewRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_admin/admin/default-places': {
+      id: '/_admin/admin/default-places'
+      path: '/admin/default-places'
+      fullPath: '/admin/default-places'
+      preLoaderRoute: typeof AdminAdminDefaultPlacesRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminAdminDefaultPlacesRoute: typeof AdminAdminDefaultPlacesRoute
   AdminAdminIndexRoute: typeof AdminAdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdminDefaultPlacesRoute: AdminAdminDefaultPlacesRoute,
   AdminAdminIndexRoute: AdminAdminIndexRoute,
 }
 
