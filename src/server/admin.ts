@@ -1,9 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { requireAdminMiddleware } from "@/lib/middleware";
 
-export const getAppStats = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getAppStats = createServerFn({ method: "GET" })
+  .middleware([requireAdminMiddleware])
+  .handler(async () => {
     const [userCount, placeCount, postCount, voteCount, subscriptionCount] =
       await Promise.all([
         prisma.user.count(),
@@ -20,8 +22,7 @@ export const getAppStats = createServerFn({ method: "GET" }).handler(
       voteCount,
       subscriptionCount,
     };
-  }
-);
+  });
 
 // Schema for search places
 const searchPlacesSchema = z.object({
@@ -36,16 +37,14 @@ const toggleDefaultSchema = z.object({
 
 // Search places by name/slug (for admin search)
 export const searchPlaces = createServerFn({ method: "GET" })
+  .middleware([requireAdminMiddleware])
   .inputValidator(searchPlacesSchema.parse)
   .handler(async ({ data }) => {
     const { query, limit } = data;
 
     const places = await prisma.place.findMany({
       where: {
-        OR: [
-          { name: { contains: query } },
-          { slug: { contains: query } },
-        ],
+        OR: [{ name: { contains: query } }, { slug: { contains: query } }],
       },
       select: {
         id: true,
@@ -64,8 +63,9 @@ export const searchPlaces = createServerFn({ method: "GET" })
   });
 
 // Get all default places
-export const getDefaultPlaces = createServerFn({ method: "GET" }).handler(
-  async () => {
+export const getDefaultPlaces = createServerFn({ method: "GET" })
+  .middleware([requireAdminMiddleware])
+  .handler(async () => {
     const places = await prisma.place.findMany({
       where: { isDefault: true },
       select: {
@@ -80,11 +80,11 @@ export const getDefaultPlaces = createServerFn({ method: "GET" }).handler(
     });
 
     return places;
-  }
-);
+  });
 
 // Set a place as default
 export const setPlaceDefault = createServerFn({ method: "POST" })
+  .middleware([requireAdminMiddleware])
   .inputValidator(toggleDefaultSchema.parse)
   .handler(async ({ data }) => {
     const { placeId } = data;
@@ -105,6 +105,7 @@ export const setPlaceDefault = createServerFn({ method: "POST" })
 
 // Remove a place from defaults
 export const removePlaceDefault = createServerFn({ method: "POST" })
+  .middleware([requireAdminMiddleware])
   .inputValidator(toggleDefaultSchema.parse)
   .handler(async ({ data }) => {
     const { placeId } = data;
