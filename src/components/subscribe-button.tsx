@@ -74,7 +74,7 @@ export function SubscribeButton({
         }}
         disabled={mutation.isPending}
         className={cn(
-          "p-0.5 rounded transition-colors ml-1",
+          "inline-flex items-center justify-center align-middle leading-none p-0.5 rounded transition-colors ml-1",
           "hover:bg-accent disabled:opacity-50",
           isSubscribed
             ? "text-primary"
@@ -88,9 +88,9 @@ export function SubscribeButton({
         }
       >
         {isSubscribed ? (
-          <Check className={size === "sm" ? "size-3" : "size-4"} />
+          <Check className={size === "sm" ? "size-4 block" : "size-5 block"} />
         ) : (
-          <Plus className={size === "sm" ? "size-3" : "size-4"} />
+          <Plus className={size === "sm" ? "size-4 block" : "size-5 block"} />
         )}
       </button>
     );
