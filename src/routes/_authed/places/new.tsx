@@ -33,6 +33,7 @@ function NewPlacePage() {
     onSuccess: (place) => {
       queryClient.invalidateQueries({ queryKey: ["topPlaces"] });
       queryClient.invalidateQueries({ queryKey: ["allPlaces"] });
+      queryClient.invalidateQueries({ queryKey: ["mySubscriptions"] });
       toast.success("Place created successfully!");
       navigate({ to: "/p/$slug", params: { slug: place.slug } });
     },

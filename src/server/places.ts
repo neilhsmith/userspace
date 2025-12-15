@@ -158,21 +158,33 @@ export const createPlace = createServerFn({ method: "POST" })
       throw new Error("A place with this slug already exists");
     }
 
-    const place = await prisma.place.create({
-      data: {
-        name: normalizedName,
-        slug,
-        moderatorId: session.user.id,
-      },
-      include: {
-        moderator: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+    const place = await prisma.$transaction(async (tx) => {
+      const newPlace = await tx.place.create({
+        data: {
+          name: normalizedName,
+          slug,
+          moderatorId: session.user.id,
+        },
+        include: {
+          moderator: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
           },
         },
-      },
+      });
+
+      // Auto-subscribe the creator to their new place
+      await tx.subscription.create({
+        data: {
+          userId: session.user.id,
+          placeId: newPlace.id,
+        },
+      });
+
+      return newPlace;
     });
 
     return place;
