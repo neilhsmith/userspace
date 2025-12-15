@@ -37,6 +37,7 @@ interface SeedPlace {
   name: string; // Display name
   slug: string; // URL-friendly slug
   moderatorEmail: string;
+  isDefault?: boolean; // Whether new users are auto-subscribed
 }
 
 const seedPlaces: SeedPlace[] = [
@@ -44,40 +45,45 @@ const seedPlaces: SeedPlace[] = [
     name: "Programming",
     slug: "programming",
     moderatorEmail: "globaladmin@example.com",
+    isDefault: true,
   },
   {
     name: "Web Development",
     slug: "webdev",
     moderatorEmail: "admin1@example.com",
+    isDefault: true,
   },
   {
     name: "JavaScript",
     slug: "javascript",
     moderatorEmail: "admin1@example.com",
+    isDefault: true,
   },
   {
     name: "TypeScript",
     slug: "typescript",
     moderatorEmail: "admin2@example.com",
+    isDefault: true,
   },
-  { name: "React", slug: "react", moderatorEmail: "user1@example.com" },
+  { name: "React", slug: "react", moderatorEmail: "user1@example.com", isDefault: true },
   { name: "Node.js", slug: "nodejs", moderatorEmail: "user1@example.com" },
   { name: "Rust", slug: "rust", moderatorEmail: "user2@example.com" },
   { name: "Go Lang", slug: "golang", moderatorEmail: "user2@example.com" },
-  { name: "Python", slug: "python", moderatorEmail: "user3@example.com" },
+  { name: "Python", slug: "python", moderatorEmail: "user3@example.com", isDefault: true },
   { name: "DevOps", slug: "devops", moderatorEmail: "admin2@example.com" },
   { name: "Linux", slug: "linux", moderatorEmail: "globaladmin@example.com" },
-  { name: "Gaming", slug: "gaming", moderatorEmail: "user3@example.com" },
+  { name: "Gaming", slug: "gaming", moderatorEmail: "user3@example.com", isDefault: true },
   { name: "Music", slug: "music", moderatorEmail: "user1@example.com" },
   { name: "Movies", slug: "movies", moderatorEmail: "user2@example.com" },
   { name: "Books", slug: "books", moderatorEmail: "user3@example.com" },
-  { name: "Science", slug: "science", moderatorEmail: "admin1@example.com" },
+  { name: "Science", slug: "science", moderatorEmail: "admin1@example.com", isDefault: true },
   {
     name: "Technology",
     slug: "technology",
     moderatorEmail: "admin2@example.com",
+    isDefault: true,
   },
-  { name: "News", slug: "news", moderatorEmail: "globaladmin@example.com" },
+  { name: "News", slug: "news", moderatorEmail: "globaladmin@example.com", isDefault: true },
   {
     name: "Ask Reddit",
     slug: "askreddit",
@@ -384,6 +390,7 @@ async function main() {
         name: seedPlace.name,
         slug: seedPlace.slug,
         moderatorId,
+        isDefault: seedPlace.isDefault ?? false,
       },
     });
 
@@ -443,6 +450,39 @@ async function main() {
 
     console.log(
       `  ✅ Created post: "${seedPost.title}" in p/${seedPost.placeSlug}`
+    );
+  }
+
+  // Create subscriptions to default places for all users
+  console.log("\n🔔 Creating subscriptions to default places...");
+
+  // Get all default place slugs and their IDs
+  const defaultPlaceSlugs = seedPlaces
+    .filter((p) => p.isDefault)
+    .map((p) => p.slug);
+  const defaultPlaceIds = defaultPlaceSlugs
+    .map((slug) => placeIdMap.get(slug))
+    .filter((id): id is string => id !== undefined);
+
+  console.log(`  Found ${defaultPlaceIds.length} default places`);
+
+  // Subscribe all users to default places
+  for (const [email, userId] of userIdMap.entries()) {
+    let subscribed = 0;
+    for (const placeId of defaultPlaceIds) {
+      const existing = await prisma.subscription.findUnique({
+        where: { userId_placeId: { userId, placeId } },
+      });
+
+      if (!existing) {
+        await prisma.subscription.create({
+          data: { userId, placeId },
+        });
+        subscribed++;
+      }
+    }
+    console.log(
+      `  ✅ Subscribed ${email} to ${subscribed} default places (${defaultPlaceIds.length - subscribed} already existed)`
     );
   }
 

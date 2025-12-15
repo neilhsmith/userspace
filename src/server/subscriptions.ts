@@ -99,3 +99,4 @@ export const checkSubscription = createServerFn({ method: "GET" })
 
     return { subscribed: !!subscription };
   });
+
