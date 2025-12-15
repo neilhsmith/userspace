@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PostFeed } from "@/components/post-feed";
+import { FeedLayout } from "@/components/feed-layout";
+import { SidebarPlaceholder } from "@/components/sidebar-placeholder";
 import { useSession } from "@/lib/auth-client";
 import { getPosts } from "@/server/posts";
 
@@ -27,34 +29,36 @@ function HomePage() {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Recent Posts</h1>
-          <p className="text-muted-foreground">
-            Browse the latest posts from the places
-          </p>
+    <FeedLayout sidebar={<SidebarPlaceholder />}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Recent Posts</h1>
+            <p className="text-muted-foreground">
+              Browse the latest posts from the places
+            </p>
+          </div>
+          {session && (
+            <Button asChild>
+              <Link to="/posts/new">New Post</Link>
+            </Button>
+          )}
         </div>
-        {session && (
-          <Button asChild>
-            <Link to="/posts/new">New Post</Link>
-          </Button>
+
+        {postsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <p className="text-muted-foreground">Loading posts...</p>
+          </div>
+        ) : posts?.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">No posts yet</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <PostFeed posts={posts} currentUser={user} />
         )}
       </div>
-
-      {postsLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Loading posts...</p>
-        </div>
-      ) : posts?.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No posts yet</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <PostFeed posts={posts} currentUser={user} />
-      )}
-    </div>
+    </FeedLayout>
   );
 }
