@@ -6,6 +6,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PostFeed } from "@/components/post-feed";
 
 export const Route = createFileRoute("/domain/$domain")({
+  loader: async ({ context, params }) => {
+    const { queryClient } = context;
+    const { domain } = params;
+    await queryClient.ensureQueryData({
+      queryKey: ["domainPosts", domain],
+      queryFn: () => getPostsByDomain({ data: { domain } }),
+    });
+  },
   component: DomainPage,
 });
 
