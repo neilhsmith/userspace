@@ -4,6 +4,23 @@ import { vote } from "@/server/votes";
 import { cn } from "@/lib/utils";
 import type { Post } from "@/lib/post";
 
+type VoteDirection = "up" | "down";
+type VoteVariables = {
+  data: {
+    postId: string;
+    value: VoteDirection;
+  };
+};
+
+type ListQuerySnapshot = Array<[readonly unknown[], Post[] | undefined]>;
+
+type VoteMutationContext = {
+  previousPost?: Post;
+  previousPostsQueries: ListQuerySnapshot;
+  previousPlacePostsQueries: ListQuerySnapshot;
+  previousDomainPostsQueries: ListQuerySnapshot;
+};
+
 type VoteButtonsProps = {
   post: Post;
   isAuthenticated: boolean;
@@ -19,76 +36,122 @@ export function VoteButtons({
 }: VoteButtonsProps) {
   const queryClient = useQueryClient();
 
-  const voteMutation = useMutation({
+  const voteMutation = useMutation<
+    Awaited<ReturnType<typeof vote>>,
+    Error,
+    VoteVariables,
+    VoteMutationContext
+  >({
     mutationFn: vote,
     onMutate: async (variables) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: ["posts"] });
-      await queryClient.cancelQueries({ queryKey: ["post", post.id] });
-
-      // Snapshot previous values
-      const previousPosts = queryClient.getQueryData<Post[]>(["posts"]);
       const previousPost = queryClient.getQueryData<Post>(["post", post.id]);
+
+      // Cancel outgoing refetches (all feeds that may contain this post)
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: ["posts"] }),
+        queryClient.cancelQueries({ queryKey: ["placePosts"] }),
+        queryClient.cancelQueries({ queryKey: ["domainPosts"] }),
+        queryClient.cancelQueries({ queryKey: ["post", post.id] }),
+      ]);
+
+      // Snapshot previous values (for rollback)
+      const previousPostsQueries = queryClient.getQueriesData<Post[]>({
+        queryKey: ["posts"],
+      });
+      const previousPlacePostsQueries = queryClient.getQueriesData<Post[]>({
+        queryKey: ["placePosts"],
+      });
+      const previousDomainPostsQueries = queryClient.getQueriesData<Post[]>({
+        queryKey: ["domainPosts"],
+      });
 
       const voteValue = variables.data.value === "up" ? 1 : -1;
 
-      // Calculate new state
-      let newUserVote: number | null;
-      let scoreDelta: number;
+      // IMPORTANT: derive "current" vote from cache, not from props.
+      // Props can be stale if a previous optimistic update already ran.
+      const findVoteInLists = (snapshots: ListQuerySnapshot) =>
+        snapshots
+          .flatMap(([, data]) => data ?? [])
+          .find((p) => p.id === post.id)?.userVote;
 
-      if (post.userVote === voteValue) {
-        // Toggling off
-        newUserVote = null;
-        scoreDelta = -voteValue;
-      } else if (post.userVote === null) {
-        // New vote
-        newUserVote = voteValue;
-        scoreDelta = voteValue;
-      } else {
-        // Changing vote
-        newUserVote = voteValue;
-        scoreDelta = voteValue * 2;
-      }
+      const currentUserVote =
+        previousPost?.userVote ??
+        findVoteInLists(previousPostsQueries) ??
+        findVoteInLists(previousPlacePostsQueries) ??
+        findVoteInLists(previousDomainPostsQueries) ??
+        post.userVote;
 
-      // Optimistically update posts list
-      if (previousPosts) {
-        queryClient.setQueryData<Post[]>(["posts"], (old) =>
-          old?.map((p) =>
-            p.id === post.id
-              ? { ...p, score: p.score + scoreDelta, userVote: newUserVote }
-              : p
-          )
-        );
-      }
+      // Calculate new state from the cached current value
+      const newUserVote = currentUserVote === voteValue ? null : voteValue;
+
+      const applyOptimisticVote = (p: Post): Post => {
+        const oldVote = p.userVote ?? 0;
+        const nextVote = newUserVote ?? 0;
+        const scoreDelta = nextVote - oldVote;
+
+        return {
+          ...p,
+          userVote: newUserVote,
+          score: p.score + scoreDelta,
+        };
+      };
+
+      const updateList = (old: Post[] | undefined) =>
+        old?.map((p) => (p.id === post.id ? applyOptimisticVote(p) : p));
+
+      // Optimistically update all list feeds that may show this post
+      queryClient.setQueriesData<Post[]>({ queryKey: ["posts"] }, updateList);
+      queryClient.setQueriesData<Post[]>(
+        { queryKey: ["placePosts"] },
+        updateList
+      );
+      queryClient.setQueriesData<Post[]>(
+        { queryKey: ["domainPosts"] },
+        updateList
+      );
 
       // Optimistically update single post
       if (previousPost) {
-        queryClient.setQueryData<Post>(["post", post.id], {
-          ...previousPost,
-          score: previousPost.score + scoreDelta,
-          userVote: newUserVote,
-        });
+        queryClient.setQueryData<Post>(
+          ["post", post.id],
+          applyOptimisticVote(previousPost)
+        );
       }
 
-      return { previousPosts, previousPost };
+      return {
+        previousPost,
+        previousPostsQueries,
+        previousPlacePostsQueries,
+        previousDomainPostsQueries,
+      };
     },
     onError: (_err, _variables, context) => {
       // Rollback on error
-      if (context?.previousPosts) {
-        queryClient.setQueryData(["posts"], context.previousPosts);
+      if (!context) return;
+
+      for (const [key, data] of context.previousPostsQueries) {
+        queryClient.setQueryData(key, data);
       }
-      if (context?.previousPost) {
+      for (const [key, data] of context.previousPlacePostsQueries) {
+        queryClient.setQueryData(key, data);
+      }
+      for (const [key, data] of context.previousDomainPostsQueries) {
+        queryClient.setQueryData(key, data);
+      }
+      if (context.previousPost) {
         queryClient.setQueryData(["post", post.id], context.previousPost);
       }
     },
     onSettled: () => {
       // Refetch to ensure consistency
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      queryClient.invalidateQueries({ queryKey: ["placePosts"] });
+      queryClient.invalidateQueries({ queryKey: ["domainPosts"] });
       queryClient.invalidateQueries({ queryKey: ["post", post.id] });
     },
   });
 
-  const handleVote = (value: "up" | "down") => {
+  const handleVote = (value: VoteDirection) => {
     if (!isAuthenticated) {
       return;
     }
