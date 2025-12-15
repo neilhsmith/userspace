@@ -7,6 +7,13 @@ import { useSession } from "@/lib/auth-client";
 import { getPosts } from "@/server/posts";
 
 export const Route = createFileRoute("/")({
+  loader: async ({ context }) => {
+    const { queryClient } = context;
+    await queryClient.ensureQueryData({
+      queryKey: ["posts"],
+      queryFn: () => getPosts(),
+    });
+  },
   component: HomePage,
 });
 

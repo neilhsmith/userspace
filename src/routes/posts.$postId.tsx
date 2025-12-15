@@ -23,6 +23,14 @@ import { safeHref } from "@/lib/utils";
 import { VoteButtons } from "@/components/vote-buttons";
 
 export const Route = createFileRoute("/posts/$postId")({
+  loader: async ({ context, params }) => {
+    const { queryClient } = context;
+    const { postId } = params;
+    await queryClient.ensureQueryData({
+      queryKey: ["post", postId],
+      queryFn: () => getPost({ data: { id: postId } }),
+    });
+  },
   component: PostDetailPage,
 });
 
