@@ -5,6 +5,8 @@ import { useSession } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PostFeed } from "@/components/post-feed";
+import { FeedLayout } from "@/components/feed-layout";
+import { SidebarPlace } from "@/components/sidebar-place";
 
 export const Route = createFileRoute("/p/$slug")({
   loader: async ({ context, params }) => {
@@ -61,51 +63,36 @@ function PlacePage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Place Header */}
-      <div className="border-b pb-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">{place.name}</h1>
-            <p className="text-sm text-muted-foreground">p/{place.slug}</p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Moderated by {place.moderator.name || place.moderator.email}
-            </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {place._count.posts} {place._count.posts === 1 ? "post" : "posts"}
-            </p>
-          </div>
-          {user && (
-            <Button asChild>
-              <Link to="/posts/new" search={{ place: place.slug }}>
-                New Post
-              </Link>
-            </Button>
-          )}
+    <FeedLayout sidebar={<SidebarPlace place={place} />}>
+      <div className="space-y-6">
+        {/* Place Header */}
+        <div className="border-b pb-6">
+          <h1 className="text-3xl font-bold">{place.name}</h1>
+          <p className="text-sm text-muted-foreground">p/{place.slug}</p>
         </div>
-      </div>
 
-      {/* Posts */}
-      {postsLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <p className="text-muted-foreground">Loading posts...</p>
-        </div>
-      ) : posts?.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No posts in this place yet</p>
-            {user && (
-              <Button asChild className="mt-4">
-                <Link to="/posts/new" search={{ place: place.slug }}>
-                  Create the first post
-                </Link>
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      ) : (
-        <PostFeed posts={posts} currentUser={user} showPlace={false} />
-      )}
-    </div>
+        {/* Posts */}
+        {postsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <p className="text-muted-foreground">Loading posts...</p>
+          </div>
+        ) : posts?.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <p className="text-muted-foreground">No posts in this place yet</p>
+              {user && (
+                <Button asChild className="mt-4">
+                  <Link to="/posts/new" search={{ place: place.slug }}>
+                    Create the first post
+                  </Link>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ) : (
+          <PostFeed posts={posts} currentUser={user} showPlace={false} />
+        )}
+      </div>
+    </FeedLayout>
   );
 }
