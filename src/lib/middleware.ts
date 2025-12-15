@@ -30,7 +30,7 @@ export const adminMiddleware = createMiddleware().server(
       throw redirect({ to: "/login", search: { redirect: url.pathname } });
     }
 
-    if (session.user.role !== "admin" && session.user.role !== "global_admin") {
+    if (!isAdmin(session.user)) {
       throw redirect({ to: "/" });
     }
 

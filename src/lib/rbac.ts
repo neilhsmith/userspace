@@ -20,7 +20,7 @@ export function canEditPost(
 ): boolean {
   if (!user) return false;
   // Global admins and admins can edit any post, users can only edit their own
-  if (isGlobalAdmin(user) || user.role === "admin") return true;
+  if (isAdmin(user)) return true;
   return post.authorId === user.id;
 }
 
@@ -30,7 +30,7 @@ export function canDeletePost(
 ): boolean {
   if (!user) return false;
   // Global admins and admins can delete any post, users can only delete their own
-  if (isGlobalAdmin(user) || user.role === "admin") return true;
+  if (isAdmin(user)) return true;
   return post.authorId === user.id;
 }
 
