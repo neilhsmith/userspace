@@ -53,7 +53,8 @@ export function VoteButtons({
   // Note: Use ternary instead of ?? because userVote can be null (vote removed)
   // and we don't want to fall back to the stale prop value in that case
   const displayScore = voteData !== undefined ? voteData.score : post.score;
-  const displayUserVote = voteData !== undefined ? voteData.userVote : post.userVote;
+  const displayUserVote =
+    voteData !== undefined ? voteData.userVote : post.userVote;
 
   const voteMutation = useMutation<
     Awaited<ReturnType<typeof vote>>,
@@ -99,18 +100,22 @@ export function VoteButtons({
           .flatMap(([, data]) => data ?? [])
           .find((p) => p.id === post.id)?.userVote;
 
-      const currentUserVote =
-        previousPostVote?.userVote ??
-        previousPost?.userVote ??
-        findVoteInLists(previousPostsQueries) ??
-        findVoteInLists(previousPlacePostsQueries) ??
-        findVoteInLists(previousDomainPostsQueries) ??
-        post.userVote;
+      // IMPORTANT: treat `null` as a valid value ("no vote").
+      // Only fall back when the source is truly missing (`undefined`), otherwise
+      // rapid toggles can incorrectly revive stale prop state via `??` chains.
+      let currentUserVote = previousPostVote?.userVote;
+      if (currentUserVote === undefined)
+        currentUserVote = previousPost?.userVote;
+      if (currentUserVote === undefined)
+        currentUserVote = findVoteInLists(previousPostsQueries);
+      if (currentUserVote === undefined)
+        currentUserVote = findVoteInLists(previousPlacePostsQueries);
+      if (currentUserVote === undefined)
+        currentUserVote = findVoteInLists(previousDomainPostsQueries);
+      if (currentUserVote === undefined) currentUserVote = post.userVote;
 
       const currentScore =
-        previousPostVote?.score ??
-        previousPost?.score ??
-        post.score;
+        previousPostVote?.score ?? previousPost?.score ?? post.score;
 
       // Calculate new state from the cached current value
       const newUserVote = currentUserVote === voteValue ? null : voteValue;
@@ -183,7 +188,10 @@ export function VoteButtons({
         queryClient.setQueryData(["post", post.id], context.previousPost);
       }
       if (context.previousPostVote) {
-        queryClient.setQueryData(["postVote", post.id], context.previousPostVote);
+        queryClient.setQueryData(
+          ["postVote", post.id],
+          context.previousPostVote
+        );
       }
     },
     onSettled: () => {
