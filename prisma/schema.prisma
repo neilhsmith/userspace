@@ -25,6 +25,7 @@ model User {
   posts            Post[]
   moderatedPlaces  Place[]
   votes            Vote[]
+  subscriptions    Subscription[]
 }
 
 model Session {
@@ -74,6 +75,7 @@ model Place {
   moderatorId String
   moderator   User     @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
   posts       Post[]
+  subscribers Subscription[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -105,4 +107,15 @@ model Vote {
   updatedAt DateTime @updatedAt
 
   @@unique([userId, postId])
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placeId   String
+  place     Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, placeId])
 }

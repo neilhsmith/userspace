@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as PostsPostIdRouteImport } from './routes/posts.$postId'
 import { Route as PSlugRouteImport } from './routes/p.$slug'
 import { Route as DomainDomainRouteImport } from './routes/domain.$domain'
+import { Route as AuthedHomeRouteImport } from './routes/_authed/home'
 import { Route as AuthedDashboardRouteImport } from './routes/_authed/dashboard'
 import { Route as AuthedPostsIndexRouteImport } from './routes/_authed/posts/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
@@ -56,6 +57,11 @@ const DomainDomainRoute = DomainDomainRouteImport.update({
   path: '/domain/$domain',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthedHomeRoute = AuthedHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedDashboardRoute = AuthedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthedDashboardRoute
+  '/home': typeof AuthedHomeRoute
   '/domain/$domain': typeof DomainDomainRoute
   '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/dashboard': typeof AuthedDashboardRoute
+  '/home': typeof AuthedHomeRoute
   '/domain/$domain': typeof DomainDomainRoute
   '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
   '/_authed/dashboard': typeof AuthedDashboardRoute
+  '/_authed/home': typeof AuthedHomeRoute
   '/domain/$domain': typeof DomainDomainRoute
   '/p/$slug': typeof PSlugRoute
   '/posts/$postId': typeof PostsPostIdRoute
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/dashboard'
+    | '/home'
     | '/domain/$domain'
     | '/p/$slug'
     | '/posts/$postId'
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/dashboard'
+    | '/home'
     | '/domain/$domain'
     | '/p/$slug'
     | '/posts/$postId'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/signup'
     | '/_authed/dashboard'
+    | '/_authed/home'
     | '/domain/$domain'
     | '/p/$slug'
     | '/posts/$postId'
@@ -228,6 +240,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DomainDomainRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authed/home': {
+      id: '/_authed/home'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof AuthedHomeRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/dashboard': {
       id: '/_authed/dashboard'
       path: '/dashboard'
@@ -268,6 +287,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthedRouteChildren {
   AuthedDashboardRoute: typeof AuthedDashboardRoute
+  AuthedHomeRoute: typeof AuthedHomeRoute
   AuthedPlacesNewRoute: typeof AuthedPlacesNewRoute
   AuthedPostsNewRoute: typeof AuthedPostsNewRoute
   AuthedPostsIndexRoute: typeof AuthedPostsIndexRoute
@@ -275,6 +295,7 @@ interface AuthedRouteChildren {
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedDashboardRoute: AuthedDashboardRoute,
+  AuthedHomeRoute: AuthedHomeRoute,
   AuthedPlacesNewRoute: AuthedPlacesNewRoute,
   AuthedPostsNewRoute: AuthedPostsNewRoute,
   AuthedPostsIndexRoute: AuthedPostsIndexRoute,
