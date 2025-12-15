@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSession } from "@/lib/auth-client";
+import { SubscribeButton } from "@/components/subscribe-button";
 
 type Place = {
   id: string;
@@ -32,6 +33,14 @@ export function SidebarPlace({ place }: SidebarPlaceProps) {
           </p>
           <p>Moderated by {place.moderator.name || place.moderator.email}</p>
         </div>
+
+        {user && (
+          <SubscribeButton
+            placeId={place.id}
+            placeName={place.name}
+            variant="button"
+          />
+        )}
 
         {user ? (
           <Button asChild className="w-full">

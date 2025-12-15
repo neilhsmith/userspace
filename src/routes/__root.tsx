@@ -23,9 +23,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu, Mail } from "lucide-react";
+import { Menu, Mail, ChevronDown, Home } from "lucide-react";
 import { toast } from "sonner";
 import { getTopPlaces } from "@/server/places";
+import { getMySubscriptions } from "@/server/subscriptions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import appCss from "../styles.css?url";
 
@@ -65,11 +72,68 @@ function PlaceBar() {
     refetchOnMount: "always",
   });
 
+  const { data: subscriptions } = useQuery({
+    queryKey: ["mySubscriptions"],
+    queryFn: () => getMySubscriptions(),
+    enabled: !!user,
+  });
+
   return (
     <div className="bg-muted/50 border-b">
       <div className="container mx-auto px-4">
         <div className="flex items-center h-8 gap-2">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1">
+            {/* Authenticated user navigation */}
+            {user && (
+              <>
+                {/* My Subscriptions Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="text-xs px-2 py-0.5 rounded hover:bg-muted transition-colors shrink-0 flex items-center gap-1">
+                    my places
+                    <ChevronDown className="size-3" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    {subscriptions && subscriptions.length > 0 ? (
+                      subscriptions.map((place) => (
+                        <DropdownMenuItem key={place.id} asChild>
+                          <Link to="/p/$slug" params={{ slug: place.slug }}>
+                            {place.name}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <DropdownMenuItem disabled>
+                        No subscriptions yet
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Home link */}
+                <Link
+                  to="/home"
+                  className="text-xs px-2 py-0.5 rounded hover:bg-muted transition-colors shrink-0 flex items-center gap-1"
+                  activeProps={{ className: "bg-muted font-medium" }}
+                >
+                  <Home className="size-3" />
+                  home
+                </Link>
+
+                <span className="text-muted-foreground/50">|</span>
+              </>
+            )}
+
+            {/* All link */}
+            <Link
+              to="/"
+              className="text-xs px-2 py-0.5 rounded hover:bg-muted transition-colors shrink-0"
+              activeProps={{ className: "bg-muted font-medium" }}
+            >
+              all
+            </Link>
+
+            <span className="text-muted-foreground/50 mx-1">|</span>
+
             <span className="text-xs text-muted-foreground shrink-0 mr-1">
               places:
             </span>

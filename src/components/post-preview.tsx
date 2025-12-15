@@ -5,6 +5,7 @@ import type { Post } from "@/lib/post";
 import { safeHref } from "@/lib/utils";
 import { formatDistanceToNow } from "date-fns";
 import { VoteButtons } from "@/components/vote-buttons";
+import { SubscribeButton } from "@/components/subscribe-button";
 
 type PostPreviewProps = {
   post: Post;
@@ -93,6 +94,14 @@ export function PostPreview({
               >
                 p/{post.place.slug}
               </Link>
+              {currentUser && (
+                <SubscribeButton
+                  placeId={post.place.id}
+                  placeName={post.place.name}
+                  variant="icon"
+                  size="sm"
+                />
+              )}
             </>
           )}
         </div>

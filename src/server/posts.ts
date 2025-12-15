@@ -276,3 +276,46 @@ export const getPostsByDomain = createServerFn({ method: "GET" })
     });
     return serializePosts(posts);
   });
+
+// Get posts from user's subscribed places (for home feed)
+export const getSubscribedPosts = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const session = await getSession().catch(() => null);
+
+    if (!session) {
+      return [];
+    }
+
+    const userId = session.user.id;
+
+    const subscriptions = await prisma.subscription.findMany({
+      where: { userId },
+      select: { placeId: true },
+    });
+
+    const placeIds = subscriptions.map((s) => s.placeId);
+
+    if (placeIds.length === 0) {
+      return [];
+    }
+
+    const posts = await prisma.post.findMany({
+      where: {
+        placeId: { in: placeIds },
+      },
+      select: {
+        ...postSelect,
+        votes: {
+          where: { userId },
+          select: { value: true },
+          take: 1,
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return serializePosts(posts);
+  }
+);

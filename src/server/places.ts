@@ -177,3 +177,24 @@ export const createPlace = createServerFn({ method: "POST" })
 
     return place;
   });
+
+// Get popular places (by post count) for subscription suggestions
+export const getPopularPlaces = createServerFn({ method: "GET" }).handler(
+  async () => {
+    const places = await prisma.place.findMany({
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        _count: {
+          select: { posts: true },
+        },
+      },
+      orderBy: {
+        posts: { _count: "desc" },
+      },
+      take: 10,
+    });
+    return places;
+  }
+);
