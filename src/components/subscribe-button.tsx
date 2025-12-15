@@ -1,9 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Check } from "lucide-react";
-import {
-  toggleSubscription,
-  checkSubscription,
-} from "@/server/subscriptions";
+import { toggleSubscription, checkSubscription } from "@/server/subscriptions";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -35,12 +32,18 @@ export function SubscribeButton({
       await queryClient.cancelQueries({ queryKey: ["subscription", placeId] });
       await queryClient.cancelQueries({ queryKey: ["mySubscriptions"] });
 
-      const previousStatus = queryClient.getQueryData<{ subscribed: boolean }>(
-        ["subscription", placeId]
-      );
+      const previousStatus = queryClient.getQueryData<{ subscribed: boolean }>([
+        "subscription",
+        placeId,
+      ]);
+
+      // IMPORTANT: derive the current value from the cache, not render-time state.
+      // During rapid clicks, `isSubscribed` can be stale while the cache is already updated.
+      const currentSubscribed =
+        previousStatus?.subscribed ?? subscriptionStatus?.subscribed ?? false;
 
       queryClient.setQueryData(["subscription", placeId], {
-        subscribed: !isSubscribed,
+        subscribed: !currentSubscribed,
       });
 
       return { previousStatus };
