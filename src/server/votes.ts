@@ -29,20 +29,20 @@ export const vote = createServerFn({ method: "POST" })
     const userId = session.user.id;
     const voteValue = value === "up" ? 1 : -1;
 
-    // Check if user already has a vote on this post
-    const existingVote = await prisma.vote.findUnique({
-      where: {
-        userId_postId: { userId, postId },
-      },
-    });
-
     // Use transaction to ensure atomic score updates
     return await prisma.$transaction(async (tx) => {
+      // Read inside the transaction to avoid TOCTOU races.
+      const existingVote = await tx.vote.findUnique({
+        where: {
+          userId_postId: { userId, postId },
+        },
+      });
+
       if (existingVote) {
         if (existingVote.value === voteValue) {
           // Same vote clicked - remove the vote (toggle off)
           await tx.vote.delete({
-            where: { id: existingVote.id },
+            where: { userId_postId: { userId, postId } },
           });
 
           // Update post score
@@ -55,7 +55,7 @@ export const vote = createServerFn({ method: "POST" })
         } else {
           // Different vote - update the vote
           await tx.vote.update({
-            where: { id: existingVote.id },
+            where: { userId_postId: { userId, postId } },
             data: { value: voteValue },
           });
 
