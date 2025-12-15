@@ -7,6 +7,21 @@ import { Card, CardContent } from "@/components/ui/card";
 import { PostFeed } from "@/components/post-feed";
 
 export const Route = createFileRoute("/p/$slug")({
+  loader: async ({ context, params }) => {
+    const { queryClient } = context;
+    const { slug } = params;
+
+    await Promise.all([
+      queryClient.ensureQueryData({
+        queryKey: ["place", slug],
+        queryFn: () => getPlaceBySlug({ data: { slug } }),
+      }),
+      queryClient.ensureQueryData({
+        queryKey: ["placePosts", slug],
+        queryFn: () => getPlacePosts({ data: { slug } }),
+      }),
+    ]);
+  },
   component: PlacePage,
 });
 
