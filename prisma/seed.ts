@@ -92,6 +92,8 @@ interface SeedPost {
   url?: string;
   placeSlug: string;
   authorEmail: string;
+  daysAgo?: number;        // How many days ago post was created
+  editedHoursAgo?: number; // If set, post was edited this many hours ago
 }
 
 const seedPosts: SeedPost[] = [
@@ -102,6 +104,8 @@ const seedPosts: SeedPost[] = [
       "I've been coding for about 5 years now and I keep coming back to Python for its simplicity and readability. What about you all? What's your go-to language and why do you love it?",
     placeSlug: "programming",
     authorEmail: "user1@example.com",
+    daysAgo: 21,
+    editedHoursAgo: 48, // Edited 2 days ago
   },
   {
     title: "Tips for learning data structures and algorithms",
@@ -109,6 +113,7 @@ const seedPosts: SeedPost[] = [
       "Just started preparing for technical interviews. Any recommendations for resources to learn DSA effectively? I've been using LeetCode but feeling a bit overwhelmed.",
     placeSlug: "programming",
     authorEmail: "user2@example.com",
+    daysAgo: 18,
   },
   // WebDev
   {
@@ -117,6 +122,8 @@ const seedPosts: SeedPost[] = [
       "Starting a new project and trying to decide which frontend framework to use. I've used React before but heard great things about Svelte's performance. What are your experiences?",
     placeSlug: "webdev",
     authorEmail: "user1@example.com",
+    daysAgo: 17,
+    editedHoursAgo: 120, // Edited 5 days ago
   },
   {
     title: "How do you handle state management in large apps?",
@@ -124,6 +131,7 @@ const seedPosts: SeedPost[] = [
       "Our codebase is getting complex and useState/useContext aren't cutting it anymore. Should we go with Redux, Zustand, or something else? Looking for real-world experiences.",
     placeSlug: "webdev",
     authorEmail: "admin1@example.com",
+    daysAgo: 15,
   },
   // JavaScript
   {
@@ -132,6 +140,7 @@ const seedPosts: SeedPost[] = [
       "I use async/await all the time but never really understood how it works internally. Just learned about the event loop and promises. It's fascinating how JavaScript handles concurrency!",
     placeSlug: "javascript",
     authorEmail: "user3@example.com",
+    daysAgo: 14,
   },
   // TypeScript
   {
@@ -140,6 +149,8 @@ const seedPosts: SeedPost[] = [
       "The new NoInfer utility type is a game changer for library authors. Also loving the improvements to type narrowing. What features are you most excited about?",
     placeSlug: "typescript",
     authorEmail: "admin2@example.com",
+    daysAgo: 13,
+    editedHoursAgo: 24, // Edited 1 day ago
   },
   {
     title: "Migrating a large codebase from JavaScript to TypeScript",
@@ -147,6 +158,7 @@ const seedPosts: SeedPost[] = [
       "Just finished migrating our 100k LOC project to TypeScript. It took 3 months but the improved DX and caught bugs made it worth it. Happy to answer questions!",
     placeSlug: "typescript",
     authorEmail: "user1@example.com",
+    daysAgo: 12,
   },
   // React
   {
@@ -155,6 +167,7 @@ const seedPosts: SeedPost[] = [
       "Finally got around to trying RSC with Next.js 14 and wow. The performance improvements are real. Data fetching feels so much cleaner now.",
     placeSlug: "react",
     authorEmail: "user2@example.com",
+    daysAgo: 11,
   },
   // Node.js
   {
@@ -163,6 +176,8 @@ const seedPosts: SeedPost[] = [
       "With all these JavaScript runtimes available now, which one is your primary choice for backend development? I'm still on Node but curious about Bun's performance claims.",
     placeSlug: "nodejs",
     authorEmail: "admin1@example.com",
+    daysAgo: 10,
+    editedHoursAgo: 72, // Edited 3 days ago
   },
   // Rust
   {
@@ -171,6 +186,7 @@ const seedPosts: SeedPost[] = [
       "Coming from JS, the borrow checker was tough at first. But after 2 months, I'm starting to appreciate how it prevents entire classes of bugs. The compiler errors are actually helpful!",
     placeSlug: "rust",
     authorEmail: "user3@example.com",
+    daysAgo: 9,
   },
   // Golang
   {
@@ -179,6 +195,7 @@ const seedPosts: SeedPost[] = [
       "After years of using complex frameworks, Go's standard library and straightforward approach is refreshing. Built a production API with just net/http. Love the fast compile times too!",
     placeSlug: "golang",
     authorEmail: "admin2@example.com",
+    daysAgo: 8,
   },
   // Python
   {
@@ -187,6 +204,8 @@ const seedPosts: SeedPost[] = [
       "Switched from Flask to FastAPI and the automatic OpenAPI docs, type hints, and async support are amazing. Highly recommend for anyone building Python APIs.",
     placeSlug: "python",
     authorEmail: "user1@example.com",
+    daysAgo: 7,
+    editedHoursAgo: 12, // Edited 12 hours ago
   },
   // DevOps
   {
@@ -195,6 +214,7 @@ const seedPosts: SeedPost[] = [
       "We're a team of 5 and wondering if we really need Kubernetes. Docker Compose has been working fine but feeling pressure to migrate. What's your experience?",
     placeSlug: "devops",
     authorEmail: "admin1@example.com",
+    daysAgo: 6,
   },
   // Linux
   {
@@ -203,6 +223,7 @@ const seedPosts: SeedPost[] = [
       "Setting up a new dev machine. Been using Ubuntu but considering Fedora or Arch. What distro do you use for development and why?",
     placeSlug: "linux",
     authorEmail: "user2@example.com",
+    daysAgo: 5,
   },
   // Gaming
   {
@@ -211,6 +232,8 @@ const seedPosts: SeedPost[] = [
       "Looking for recommendations! Just finished Baldur's Gate 3 and need something new. Into RPGs and strategy games mostly.",
     placeSlug: "gaming",
     authorEmail: "user3@example.com",
+    daysAgo: 4,
+    editedHoursAgo: 6, // Edited 6 hours ago
   },
   // Science
   {
@@ -219,6 +242,7 @@ const seedPosts: SeedPost[] = [
       "The images and data coming from JWST continue to amaze me. The detail on distant galaxies is incredible. Science is awesome!",
     placeSlug: "science",
     authorEmail: "globaladmin@example.com",
+    daysAgo: 3,
   },
   // Technology
   {
@@ -227,6 +251,7 @@ const seedPosts: SeedPost[] = [
       "Every week there seems to be a new breakthrough in AI. From GPT-4 to open source models like Llama, it's hard to keep up. What developments are you most excited about?",
     placeSlug: "technology",
     authorEmail: "admin1@example.com",
+    daysAgo: 2,
   },
   // AskReddit style
   {
@@ -235,6 +260,8 @@ const seedPosts: SeedPost[] = [
       "For me, it was learning to touch type. Seemed small at the time but it's made such a difference in my productivity and comfort while working.",
     placeSlug: "askreddit",
     authorEmail: "user1@example.com",
+    daysAgo: 2,
+    editedHoursAgo: 3, // Edited 3 hours ago
   },
   // Funny
   {
@@ -243,6 +270,7 @@ const seedPosts: SeedPost[] = [
       "Explained the problem to my rubber duck and immediately realized I had a typo in my variable name. The duck remains undefeated.",
     placeSlug: "funny",
     authorEmail: "user2@example.com",
+    daysAgo: 1,
   },
   // Link posts
   {
@@ -250,30 +278,36 @@ const seedPosts: SeedPost[] = [
     url: "https://en.wikipedia.org/wiki/Sakoku",
     placeSlug: "science",
     authorEmail: "user1@example.com",
+    daysAgo: 20,
   },
   {
     title: "React 19 is now stable!",
     url: "https://react.dev/blog/2024/12/05/react-19",
     placeSlug: "react",
     authorEmail: "admin1@example.com",
+    daysAgo: 0, // Today
   },
   {
     title: "The Rust Programming Language Book - Free Online",
     url: "https://doc.rust-lang.org/book/",
     placeSlug: "rust",
     authorEmail: "user2@example.com",
+    daysAgo: 16,
+    editedHoursAgo: 200, // Edited over a week ago
   },
   {
     title: "GitHub Copilot now free in VS Code",
     url: "https://github.blog/news-insights/product-news/github-copilot-in-vscode-free/",
     placeSlug: "technology",
     authorEmail: "globaladmin@example.com",
+    daysAgo: 1,
   },
   {
     title: "How DNS works - A comic explanation",
     url: "https://howdns.works/",
     placeSlug: "webdev",
     authorEmail: "user3@example.com",
+    daysAgo: 19,
   },
 ];
 
@@ -384,6 +418,16 @@ async function main() {
       continue;
     }
 
+    // Calculate dates
+    const createdAt = new Date();
+    createdAt.setDate(createdAt.getDate() - (seedPost.daysAgo ?? 0));
+    // Add some randomness to the time of day
+    createdAt.setHours(Math.floor(Math.random() * 24), Math.floor(Math.random() * 60));
+
+    const updatedAt = seedPost.editedHoursAgo
+      ? new Date(Date.now() - seedPost.editedHoursAgo * 60 * 60 * 1000)
+      : createdAt;
+
     await prisma.post.create({
       data: {
         title: seedPost.title,
@@ -392,6 +436,8 @@ async function main() {
         domain: seedPost.url ? getDomain(seedPost.url) : `self.${seedPost.placeSlug}`,
         placeId,
         authorId,
+        createdAt,
+        updatedAt,
       },
     });
 
