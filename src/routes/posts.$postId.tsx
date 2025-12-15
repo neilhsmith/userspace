@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { safeHref } from "@/lib/utils";
+import { VoteButtons } from "@/components/vote-buttons";
 
 export const Route = createFileRoute("/posts/$postId")({
   component: PostDetailPage,
@@ -186,8 +187,16 @@ function PostDetailPage() {
     <div className="max-w-2xl mx-auto">
       <Card>
         <CardHeader>
-          <div className="flex items-start justify-between">
-            <div className="space-y-1">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 pt-1">
+              <VoteButtons
+                post={post}
+                isAuthenticated={!!user}
+                orientation="vertical"
+                size="md"
+              />
+            </div>
+            <div className="flex-1 space-y-1">
               <CardTitle className="text-2xl">
                 {post.url ? (
                   <>

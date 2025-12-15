@@ -24,6 +24,7 @@ model User {
   accounts         Account[]
   posts            Post[]
   moderatedPlaces  Place[]
+  votes            Vote[]
 }
 
 model Session {
@@ -83,10 +84,25 @@ model Post {
   content   String?  // Text content for text posts (null for link posts)
   url       String?  // External URL for link posts (null for text posts)
   domain    String   // For link posts: hostname from URL. For text posts: self.{placeSlug}
+  score     Int      @default(0) // Cached vote score (upvotes - downvotes)
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   placeId   String
   place     Place    @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  votes     Vote[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  value     Int      // 1 for upvote, -1 for downvote
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, postId])
 }

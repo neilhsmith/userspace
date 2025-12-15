@@ -95,6 +95,8 @@ export const getPlacePosts = createServerFn({ method: "GET" })
   .inputValidator(getPlaceSchema.parse)
   .handler(async ({ data }) => {
     const { slug } = data;
+    const session = await getSession().catch(() => null);
+    const userId = session?.user?.id ?? null;
 
     const posts = await prisma.post.findMany({
       where: {
@@ -102,7 +104,16 @@ export const getPlacePosts = createServerFn({ method: "GET" })
           slug,
         },
       },
-      select: postSelect,
+      select: {
+        ...postSelect,
+        ...(userId && {
+          votes: {
+            where: { userId },
+            select: { value: true },
+            take: 1,
+          },
+        }),
+      },
       orderBy: {
         createdAt: "desc",
       },
