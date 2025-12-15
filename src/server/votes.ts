@@ -9,6 +9,10 @@ const voteSchema = z.object({
   value: z.enum(["up", "down"]),
 });
 
+const getPostVoteSchema = z.object({
+  postId: z.string(),
+});
+
 async function getSession() {
   const request = useRequest();
   return auth.api.getSession({
@@ -86,4 +90,36 @@ export const vote = createServerFn({ method: "POST" })
         return { userVote: voteValue, scoreDelta: voteValue };
       }
     });
+  });
+
+// Get vote status for a single post
+export const getPostVote = createServerFn({ method: "GET" })
+  .inputValidator(getPostVoteSchema.parse)
+  .handler(async ({ data }) => {
+    const { postId } = data;
+    const session = await getSession().catch(() => null);
+    const userId = session?.user?.id ?? null;
+
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+      select: {
+        score: true,
+        ...(userId && {
+          votes: {
+            where: { userId },
+            select: { value: true },
+            take: 1,
+          },
+        }),
+      },
+    });
+
+    if (!post) {
+      return { userVote: null, score: 0 };
+    }
+
+    return {
+      userVote: (post as { votes?: { value: number }[] }).votes?.[0]?.value ?? null,
+      score: post.score,
+    };
   });
