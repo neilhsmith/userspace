@@ -5,8 +5,7 @@ import { Search, X, Plus } from "lucide-react";
 import {
   getDefaultPlaces,
   searchPlaces,
-  setPlaceDefault,
-  removePlaceDefault,
+  updatePlaceDefault,
 } from "@/server/admin";
 import {
   Popover,
@@ -83,7 +82,8 @@ function DefaultPlacesPage() {
 
   // Add to defaults mutation
   const addMutation = useMutation({
-    mutationFn: (placeId: string) => setPlaceDefault({ data: { placeId } }),
+    mutationFn: (placeId: string) =>
+      updatePlaceDefault({ data: { placeId, value: true } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["defaultPlaces"] });
       queryClient.invalidateQueries({ queryKey: ["searchPlaces"] });
@@ -92,7 +92,8 @@ function DefaultPlacesPage() {
 
   // Remove from defaults mutation
   const removeMutation = useMutation({
-    mutationFn: (placeId: string) => removePlaceDefault({ data: { placeId } }),
+    mutationFn: (placeId: string) =>
+      updatePlaceDefault({ data: { placeId, value: false } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["defaultPlaces"] });
       queryClient.invalidateQueries({ queryKey: ["searchPlaces"] });

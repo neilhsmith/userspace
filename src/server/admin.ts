@@ -30,9 +30,10 @@ const searchPlacesSchema = z.object({
   limit: z.number().min(1).max(50).default(10),
 });
 
-// Schema for toggle default
-const toggleDefaultSchema = z.object({
+// Schema for updating default status
+const updateDefaultSchema = z.object({
   placeId: z.string(),
+  value: z.boolean(),
 });
 
 // Search places by name/slug (for admin search)
@@ -82,37 +83,16 @@ export const getDefaultPlaces = createServerFn({ method: "GET" })
     return places;
   });
 
-// Set a place as default
-export const setPlaceDefault = createServerFn({ method: "POST" })
+// Update a place's default status
+export const updatePlaceDefault = createServerFn({ method: "POST" })
   .middleware([requireAdminMiddleware])
-  .inputValidator(toggleDefaultSchema.parse)
+  .inputValidator(updateDefaultSchema.parse)
   .handler(async ({ data }) => {
-    const { placeId } = data;
+    const { placeId, value } = data;
 
     const place = await prisma.place.update({
       where: { id: placeId },
-      data: { isDefault: true },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        isDefault: true,
-      },
-    });
-
-    return place;
-  });
-
-// Remove a place from defaults
-export const removePlaceDefault = createServerFn({ method: "POST" })
-  .middleware([requireAdminMiddleware])
-  .inputValidator(toggleDefaultSchema.parse)
-  .handler(async ({ data }) => {
-    const { placeId } = data;
-
-    const place = await prisma.place.update({
-      where: { id: placeId },
-      data: { isDefault: false },
+      data: { isDefault: value },
       select: {
         id: true,
         name: true,
